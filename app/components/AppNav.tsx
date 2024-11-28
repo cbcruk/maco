@@ -1,33 +1,21 @@
-import { ComponentProps } from 'react'
-import { NavLink, useRouteLoaderData } from 'react-router'
-import type { Info } from '../+types/root'
+import { GetSessionReturn } from './Session'
+import { AppNavLink } from './AppNavLink'
 
-function AppNavLink({ children, ...props }: ComponentProps<typeof NavLink>) {
-  return (
-    <NavLink
-      className="text-xs hover:font-bold aria-[current=page]:font-bold aria-[current=page]:underline"
-      {...props}
-    >
-      {children}
-    </NavLink>
-  )
-}
+type AppNavProps = GetSessionReturn
 
-export function AppNav() {
-  const { isLogin } = useRouteLoaderData('root') as Info['loaderData']
-
+export function AppNav({ isLoggedIn }: AppNavProps) {
   return (
     <div className="flex gap-2 p-4">
-      <AppNavLink to="/">홈</AppNavLink>
-      {isLogin ? (
+      <AppNavLink href="/">홈</AppNavLink>
+      {isLoggedIn ? (
         <>
-          <AppNavLink to="/commit">쓰기</AppNavLink>
-          <AppNavLink to="/signout">로그아웃</AppNavLink>
+          <AppNavLink href="/commit">쓰기</AppNavLink>
+          <AppNavLink href="/account">계정</AppNavLink>
         </>
       ) : (
         <>
-          <AppNavLink to="/signin">로그인</AppNavLink>
-          <AppNavLink to="/signup">가입</AppNavLink>
+          <AppNavLink href="/account/login">로그인</AppNavLink>
+          <AppNavLink href="/account/signup">가입</AppNavLink>
         </>
       )}
     </div>

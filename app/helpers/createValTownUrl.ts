@@ -1,4 +1,4 @@
-import { VAL_TOWN_URL_ORIGIN } from '~/constants'
+import { VAL_TOWN_URL_ORIGIN } from '../constants'
 
 type GetValTownUrlParams = ConstructorParameters<typeof URL>[0]
 
