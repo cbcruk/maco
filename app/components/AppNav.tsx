@@ -10,12 +10,12 @@ export function AppNav({ isLoggedIn }: AppNavProps) {
       {isLoggedIn ? (
         <>
           <AppNavLink href="/commit">쓰기</AppNavLink>
-          <AppNavLink href="/signout">로그아웃</AppNavLink>
+          <AppNavLink href="/account">계정</AppNavLink>
         </>
       ) : (
         <>
-          <AppNavLink href="/signin">로그인</AppNavLink>
-          <AppNavLink href="/signup">가입</AppNavLink>
+          <AppNavLink href="/account/login">로그인</AppNavLink>
+          <AppNavLink href="/account/signup">가입</AppNavLink>
         </>
       )}
     </div>

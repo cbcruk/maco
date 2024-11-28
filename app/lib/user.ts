@@ -1,6 +1,6 @@
-import { createContentTypeHeaders } from '~/helpers/createContentTypeHeaders'
-import { createValTownUrl } from '~/helpers/createValTownUrl'
-import { UserSchema } from '~/schema'
+import { createContentTypeHeaders } from '../helpers/createContentTypeHeaders'
+import { createValTownUrl } from '../helpers/createValTownUrl'
+import { UserSchema } from '../schema'
 
 export async function createUser(
   body: Pick<UserSchema, 'name' | 'email'> & { password: string }

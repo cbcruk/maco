@@ -1,14 +1,17 @@
 'use client'
 
+import { loginAction } from '@/app/actions/auth'
 import { Button } from '@/app/components/Button'
+import { ErrorMessage } from '@/app/components/ErrorMessage'
 import { Input } from '@/app/components/Input'
+import { getInitialActionState } from '@/app/helpers/getInitialActionState'
 import { useActionState } from 'react'
-import { login } from '../actions'
 
-export function SignInForm() {
-  const [, formAction, isPending] = useActionState(login, {
-    message: '',
-  })
+export function LogInForm() {
+  const [state, formAction, isPending] = useActionState(
+    loginAction,
+    getInitialActionState()
+  )
 
   return (
     <form action={formAction}>
@@ -28,6 +31,7 @@ export function SignInForm() {
               defaultValue=""
             />
           </div>
+          <ErrorMessage errors={state.errors} />
           <div className="flex">
             <Button type="submit">로그인</Button>
           </div>

@@ -1,14 +1,17 @@
 'use client'
 
+import { createCommitAction } from '@/app/actions/commit'
 import { Button } from '@/app/components/Button'
 import { EmojiSelect } from '@/app/components/EmojiSelect'
-import { createCommit } from '@/app/lib/commit'
+import { ErrorMessage } from '@/app/components/ErrorMessage'
+import { getInitialActionState } from '@/app/helpers/getInitialActionState'
 import { useActionState } from 'react'
 
 export function CommitForm() {
-  const [, formAction, isPending] = useActionState(createCommit, {
-    message: '',
-  })
+  const [state, formAction, isPending] = useActionState(
+    createCommitAction,
+    getInitialActionState()
+  )
 
   return (
     <form action={formAction}>
@@ -22,6 +25,7 @@ export function CommitForm() {
           placeholder="메시지를 입력해 주세요"
           defaultValue=""
         />
+        <ErrorMessage errors={state.errors} />
         <Button name="intent" value="commit" type="submit" disabled={isPending}>
           커밋
         </Button>

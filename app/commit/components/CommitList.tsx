@@ -1,6 +1,11 @@
+import { CommitSchema } from '@/app/schema'
 import { formatDistanceToNow } from 'date-fns'
 
-export function CommitList({ items }) {
+type CommitListProps = {
+  items: CommitSchema[]
+}
+
+export function CommitList({ items }: CommitListProps) {
   return (
     <div className="flex flex-col gap-2 w-min max-h-[300px] overflow-auto p-2 rounded-lg bg-neutral-900">
       {items.map((commit) => (
