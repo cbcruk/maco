@@ -22,8 +22,12 @@ async function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko">
       <body className={`${notoSans.className} antialiased text-xs`}>
-        <Session>{AppNav}</Session>
-        {children}
+        <div data-scope="stacks" className="flex flex-col">
+          <div data-part="stacks-row">
+            <Session>{AppNav}</Session>
+          </div>
+          <div data-part="stacks-row">{children}</div>
+        </div>
       </body>
     </html>
   )

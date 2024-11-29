@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ComponentProps } from 'react'
+import styles from './AppNavLink.module.css'
 
 export function AppNavLink({
   children,
@@ -12,7 +13,7 @@ export function AppNavLink({
 
   return (
     <Link
-      className="hover:font-bold aria-[current=page]:font-bold aria-[current=page]:underline"
+      className={styles.root}
       aria-current={props.href === pathname ? 'page' : undefined}
       {...props}
     >

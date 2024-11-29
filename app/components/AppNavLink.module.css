@@ -1,0 +1,11 @@
+.root {
+  @apply inline-flex items-center gap-1 p-1 text-xs text-center;
+}
+
+.root:hover {
+  @apply font-bold;
+}
+
+.root[aria-current='page'] {
+  @apply bg-zinc-100 text-zinc-900 rounded-lg font-semibold;
+}
