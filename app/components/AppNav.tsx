@@ -1,6 +1,12 @@
 import { GetSessionReturn } from './Session'
 import { AppNavLink } from './AppNavLink'
-import { HomeIcon, Pencil1Icon, PersonIcon } from '@radix-ui/react-icons'
+import {
+  AvatarIcon,
+  EnterIcon,
+  HomeIcon,
+  IdCardIcon,
+  Pencil1Icon,
+} from '@radix-ui/react-icons'
 
 type AppNavProps = GetSessionReturn
 
@@ -15,14 +21,18 @@ export function AppNav({ isLoggedIn }: AppNavProps) {
           <AppNavLink href="/commit">
             <Pencil1Icon /> 쓰기
           </AppNavLink>
-          <AppNavLink href="/account">
-            <PersonIcon /> 계정
+          <AppNavLink href="/account" pattern="/account/{:menu}">
+            <AvatarIcon /> 계정
           </AppNavLink>
         </>
       ) : (
         <>
-          <AppNavLink href="/account/login">로그인</AppNavLink>
-          <AppNavLink href="/account/signup">가입</AppNavLink>
+          <AppNavLink href="/account/login">
+            <EnterIcon /> 로그인
+          </AppNavLink>
+          <AppNavLink href="/account/signup">
+            <IdCardIcon /> 가입
+          </AppNavLink>
         </>
       )}
     </nav>
