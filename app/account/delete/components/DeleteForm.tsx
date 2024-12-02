@@ -14,7 +14,9 @@ export function DeleteForm() {
   return (
     <form action={formAction}>
       <fieldset disabled={isPending}>
-        <Button type="submit">완료</Button>
+        <Button type="submit" data-variant="danger">
+          완료
+        </Button>
       </fieldset>
     </form>
   )

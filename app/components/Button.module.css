@@ -1,0 +1,15 @@
+.root {
+  @apply p-1.5 rounded-lg bg-emerald-600 text-xs text-emerald-50;
+}
+
+.root:hover {
+  @apply bg-emerald-700 text-emerald-100 font-bold;
+}
+
+.root:disabled {
+  @apply opacity-50;
+}
+
+.root[data-variant='danger'] {
+  @apply bg-red-500;
+}

@@ -7,7 +7,7 @@ export function LogOutFormSubmit() {
   const status = useFormStatus()
 
   return (
-    <Button type="submit" disabled={status.pending}>
+    <Button type="submit" data-variant="danger" disabled={status.pending}>
       로그아웃
     </Button>
   )
