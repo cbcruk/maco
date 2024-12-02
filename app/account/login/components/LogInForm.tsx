@@ -5,6 +5,7 @@ import { Button } from '@/app/components/Button'
 import { ErrorMessage } from '@/app/components/ErrorMessage'
 import { Input } from '@/app/components/Input'
 import { getInitialActionState } from '@/app/helpers/getInitialActionState'
+import Link from 'next/link'
 import { useActionState } from 'react'
 
 export function LogInForm() {
@@ -32,8 +33,14 @@ export function LogInForm() {
             />
           </div>
           <ErrorMessage errors={state.errors} />
-          <div className="flex">
+          <div className="flex items-center justify-between">
             <Button type="submit">로그인</Button>
+            <Link
+              href="/account/forgot-password"
+              className="text-blue-400 hover:underline"
+            >
+              비밀번호 찾기
+            </Link>
           </div>
         </div>
       </fieldset>

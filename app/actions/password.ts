@@ -39,7 +39,8 @@ export async function forgotPasswordAction(
     }
   }
 
-  const token = await response.json()
-
-  redirect(`/account/reset-password?token=${token}`)
+  return {
+    data: `${response.status}`,
+    errors: [],
+  }
 }
