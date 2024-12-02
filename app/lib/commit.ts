@@ -12,6 +12,15 @@ export async function getCommits() {
   return response
 }
 
+export async function getLatestCommit() {
+  const session = await getSession()
+  const url = createValTownUrl('/api/commits/latest')
+  url.searchParams.set('user_id', `${session.id}`)
+  const response = await fetch(url)
+
+  return response
+}
+
 type CreateCommitBody = Omit<CommitSchema, 'id' | 'created' | 'updated'>
 
 export async function createCommit(body: CreateCommitBody) {
