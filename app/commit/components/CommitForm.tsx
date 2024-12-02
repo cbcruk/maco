@@ -26,9 +26,16 @@ export function CommitForm() {
           defaultValue=""
         />
         <ErrorMessage errors={state.errors} />
-        <Button name="intent" value="commit" type="submit" disabled={isPending}>
-          커밋
-        </Button>
+        <div className="max-w-fit">
+          <Button
+            name="intent"
+            value="commit"
+            type="submit"
+            disabled={isPending}
+          >
+            저장
+          </Button>
+        </div>
       </fieldset>
     </form>
   )
