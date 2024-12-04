@@ -78,7 +78,7 @@ export function EmojiSelect() {
                 })
               }}
               width={320}
-              height={250}
+              height={320}
               theme={Theme.AUTO}
               style={
                 {
