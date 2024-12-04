@@ -19,7 +19,7 @@ export function CommitForm() {
         <EmojiSelect />
         <textarea
           name="message"
-          className="w-full p-2 border rounded-lg text-xs"
+          className="w-min max-w-[288px] p-2 border rounded-lg text-xs"
           rows={4}
           cols={50}
           placeholder="메시지를 입력해 주세요"
