@@ -15,7 +15,7 @@ export function CommitForm() {
 
   return (
     <form action={formAction}>
-      <fieldset disabled={isPending} className="flex flex-col gap-2 w-min">
+      <fieldset disabled={isPending} className="flex flex-col gap-2">
         <EmojiSelect />
         <textarea
           name="message"

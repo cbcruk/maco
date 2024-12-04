@@ -1,32 +1,27 @@
 'use client'
 
 import { Categories, EmojiStyle, Theme } from 'emoji-picker-react'
-import { CSSProperties, useState, useRef } from 'react'
+import { CSSProperties, useState, useTransition } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 import dynamic from 'next/dynamic'
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false })
 
 export function EmojiSelect() {
+  const [, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
-  const input = useRef<HTMLInputElement | null>(null)
+  const [emoji, setEmoji] = useState('😀')
 
   return (
     <div>
       <Popover.Root open={open} onOpenChange={setOpen}>
-        <Popover.Trigger className="text-left">
-          <input
-            ref={input}
-            name="emoji"
-            type="text"
-            maxLength={1}
-            defaultValue="😀"
-            className="text-2xl bg-transparent"
-          />
+        <Popover.Trigger className="text-left text-2xl bg-transparent">
+          {emoji}
+          <input type="hidden" name="emoji" value={emoji} />
         </Popover.Trigger>
         <Popover.Anchor />
         <Popover.Portal>
-          <Popover.Content className="px-4">
+          <Popover.Content>
             <EmojiPicker
               skinTonesDisabled
               searchPlaceHolder="이모지 검색하기"
@@ -77,10 +72,12 @@ export function EmojiSelect() {
                 },
               ]}
               onEmojiClick={(selected) => {
-                input.current!.value = selected.emoji
-
-                setOpen(false)
+                startTransition(() => {
+                  setEmoji(selected.emoji)
+                  setOpen(false)
+                })
               }}
+              width={320}
               height={250}
               theme={Theme.AUTO}
               style={
