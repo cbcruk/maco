@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from 'date-fns'
 import { CommitSchema } from '../schema'
+import Link from 'next/link'
 
 type CommitListProps = {
   list: CommitSchema[]
@@ -23,8 +24,9 @@ export function CommitList({ list }: CommitListProps) {
     <div className="flex flex-col">
       {list.map((commit) => {
         return (
-          <div
+          <Link
             key={commit.id}
+            href={`/commit/${commit.id}`}
             className="flex gap-2 items-start p-4 py-2 border-b border-solid border-gray-900"
           >
             <span className="text-2xl">{commit.emoji}</span>
@@ -38,7 +40,7 @@ export function CommitList({ list }: CommitListProps) {
                 })}
               </div>
             </div>
-          </div>
+          </Link>
         )
       })}
     </div>

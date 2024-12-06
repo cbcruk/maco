@@ -1,42 +1,41 @@
 'use client'
 
-import { createCommitAction } from '@/app/actions/commit'
 import { Button } from '@/app/components/Button'
 import { EmojiSelect } from '@/app/components/EmojiSelect'
 import { ErrorMessage } from '@/app/components/ErrorMessage'
-import { getInitialActionState } from '@/app/helpers/getInitialActionState'
-import { useActionState } from 'react'
+import { ComponentProps } from 'react'
+import { InitialActionState } from '@/app/helpers/getInitialActionState'
+import { CommitSchema } from '@/app/actions/commit'
 
-export function CommitForm() {
-  const [state, formAction, isPending] = useActionState(
-    createCommitAction,
-    getInitialActionState()
-  )
+type CommitFormProps = {
+  defaultValues?: CommitSchema
+  errors: InitialActionState['errors']
+} & ComponentProps<'fieldset'>
 
+export function CommitForm({
+  defaultValues,
+  errors,
+  children,
+  ...props
+}: CommitFormProps) {
   return (
-    <form action={formAction}>
-      <fieldset disabled={isPending} className="flex flex-col gap-2">
-        <EmojiSelect />
-        <textarea
-          name="message"
-          className="w-min max-w-[288px] p-2 border rounded-lg text-xs"
-          rows={4}
-          cols={50}
-          placeholder="메시지를 입력해 주세요"
-          defaultValue=""
-        />
-        <ErrorMessage errors={state.errors} />
-        <div className="max-w-fit">
-          <Button
-            name="intent"
-            value="commit"
-            type="submit"
-            disabled={isPending}
-          >
-            저장
-          </Button>
-        </div>
-      </fieldset>
-    </form>
+    <fieldset className="flex flex-col gap-2" {...props}>
+      {children}
+      <EmojiSelect defaultValue={defaultValues?.emoji ?? undefined} />
+      <textarea
+        name="message"
+        className="w-min max-w-[288px] p-2 border rounded-lg text-xs"
+        rows={4}
+        cols={50}
+        placeholder="메시지를 입력해 주세요"
+        defaultValue={defaultValues?.message ?? undefined}
+      />
+      <ErrorMessage errors={errors} />
+      <div className="max-w-fit">
+        <Button name="intent" value="commit" type="submit">
+          저장
+        </Button>
+      </div>
+    </fieldset>
   )
 }
