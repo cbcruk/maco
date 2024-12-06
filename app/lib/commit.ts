@@ -58,7 +58,7 @@ export async function updateCommit(id: string, body: UpdateCommitBody) {
   const url = createValTownUrl(`/api/commits/${id}`)
   const headers = createContentTypeHeaders()
   const response = await fetch(url, {
-    method: 'POST',
+    method: 'PATCH',
     body: JSON.stringify(body),
     headers,
   })

@@ -1,7 +1,7 @@
-import { CommitForm } from './components/CommitForm'
+import { CommitFormCreate } from './components/CommitFormCreate'
 
 async function Commit() {
-  return <CommitForm />
+  return <CommitFormCreate />
 }
 
 export default Commit

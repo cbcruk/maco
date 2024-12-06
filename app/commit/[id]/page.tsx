@@ -1,5 +1,4 @@
 import { getCommit } from '@/app/lib/commit'
-import { CommitForm } from '../components/CommitForm'
 import { CommitSchema } from '@/app/schema'
 import { CommitFormEdit } from '../components/CommitFormEdit'
 
@@ -15,12 +14,13 @@ async function CommitDetail({ params }: CommitDetailProps) {
 
   const data = (await commitResponse.json()) as CommitSchema
 
-  const formData = new FormData()
-  formData.set('emoji', data.emoji)
-  formData.set('message', data.message)
-
   return (
-    <CommitFormEdit formData={formData}>
+    <CommitFormEdit
+      defaultValues={{
+        emoji: data.emoji,
+        message: data.message,
+      }}
+    >
       <input type="hidden" name="id" defaultValue={id} />
     </CommitFormEdit>
   )
