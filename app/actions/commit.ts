@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { getMessageFromResponse } from '../helpers/getMessage'
-import { createCommit } from '../lib/commit'
+import { createCommit, updateCommit } from '../lib/commit'
 import { InitialActionState } from '../helpers/getInitialActionState'
 
 export async function createCommitAction(
@@ -21,6 +21,32 @@ export async function createCommitAction(
     }
   }
 
+  revalidatePath('/commit')
+
+  return {
+    data: `${response.status}`,
+    errors: [],
+  }
+}
+
+export async function updateCommitAction(
+  _prevState: InitialActionState,
+  formData: FormData
+) {
+  const id = formData.get('id') as string
+  const response = await updateCommit(id, {
+    emoji: formData.get('emoji') as string,
+    message: formData.get('message') as string,
+  })
+
+  if (!response.ok) {
+    return {
+      data: null,
+      errors: [getMessageFromResponse(response)],
+    }
+  }
+
+  revalidatePath('/')
   revalidatePath('/commit')
 
   return {

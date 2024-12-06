@@ -7,10 +7,10 @@ import dynamic from 'next/dynamic'
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false })
 
-export function EmojiSelect() {
+export function EmojiSelect({ defaultValue = '😀' }) {
   const [, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
-  const [emoji, setEmoji] = useState('😀')
+  const [emoji, setEmoji] = useState(defaultValue)
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
