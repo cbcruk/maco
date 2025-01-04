@@ -23,7 +23,7 @@ async function RootLayout({ children }: RootLayoutProps) {
     <html lang="ko">
       <body className={`${notoSans.className} antialiased text-xs`}>
         <div data-scope="stacks" className="flex flex-col">
-          <div data-part="stacks-row" className="sticky top-0 bg-zinc-950">
+          <div data-part="stacks-row" className="sticky top-0 z-50 bg-zinc-950">
             <Session>{AppNav}</Session>
           </div>
           <div data-part="stacks-row">{children}</div>

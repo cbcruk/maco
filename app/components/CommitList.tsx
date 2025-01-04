@@ -1,6 +1,9 @@
-import { formatDistanceToNow } from 'date-fns'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 import { CommitSchema } from '../schema'
-import Link from 'next/link'
+import { groupBy } from 'es-toolkit'
+import { CommitListGroup } from './CommitListGroup'
+import { CommitItem } from './CommitItem'
 
 type CommitListProps = {
   list: CommitSchema[]
@@ -20,27 +23,21 @@ export function CommitList({ list }: CommitListProps) {
     return <CommitListEmpty />
   }
 
+  const group = groupBy(list, (item) => item.created.slice(0, 10))
+  const entries = Object.entries(group)
+
   return (
     <div className="flex flex-col">
-      {list.map((commit) => {
+      {entries.map(([date, list]) => {
         return (
-          <Link
-            key={commit.id}
-            href={`/commit/${commit.id}`}
-            className="flex gap-2 items-start p-4 py-2 border-b border-solid border-gray-900"
+          <CommitListGroup
+            key={date}
+            label={format(date, 'yyyy년 MM월 dd일 EEEE', { locale: ko })}
           >
-            <span className="text-2xl">{commit.emoji}</span>
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-1 text-sm break-keep">
-                {commit.message}
-              </div>
-              <div className="text-[10px] text-gray-400" title={commit.created}>
-                {formatDistanceToNow(new Date(commit.created), {
-                  addSuffix: true,
-                })}
-              </div>
-            </div>
-          </Link>
+            {list.map((commit) => {
+              return <CommitItem key={commit.id} data={commit} />
+            })}
+          </CommitListGroup>
         )
       })}
     </div>
