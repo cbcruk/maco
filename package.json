@@ -14,11 +14,13 @@
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.12.0",
     "es-toolkit": "^1.31.0",
+    "framer-motion": "^11.18.0",
     "iron-session": "^8.0.4",
     "next": "15.0.3",
     "path-to-regexp": "^8.2.0",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
+    "react-transition-progress": "^0.0.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

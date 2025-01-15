@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from 'react-transition-progress/next'
 import { ComponentProps } from 'react'
 import styles from './AppNavLink.module.css'
 import { usePathname } from 'next/navigation'
