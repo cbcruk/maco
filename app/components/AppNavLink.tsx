@@ -15,6 +15,7 @@ export function AppNavLink({ children, pattern, ...props }: AppNavLinkProps) {
 
   return (
     <Link
+      prefetch
       className={styles.root}
       aria-current={
         match(`${pattern || props.href}`)(`${pathname}/`) ? 'page' : undefined

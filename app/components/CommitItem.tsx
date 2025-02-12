@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import Link from 'next/link'
+import { Link } from 'react-transition-progress/next'
 import { CommitSchema } from '../schema'
 
 type CommitItemProps = {
@@ -10,6 +10,7 @@ export function CommitItem({ data: commit }: CommitItemProps) {
   return (
     <Link
       key={commit.id}
+      prefetch
       href={`/commit/${commit.id}`}
       className="flex gap-2 items-start p-4 py-2 border-b border-solid border-gray-900 hover:bg-gray-900 transition-all"
     >

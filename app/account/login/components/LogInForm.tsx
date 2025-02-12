@@ -5,7 +5,7 @@ import { Button } from '@/app/components/Button'
 import { ErrorMessage } from '@/app/components/ErrorMessage'
 import { Input } from '@/app/components/Input'
 import { getInitialActionState } from '@/app/helpers/getInitialActionState'
-import Link from 'next/link'
+import { Link } from 'react-transition-progress/next'
 import { useActionState } from 'react'
 
 export function LogInForm() {
@@ -36,6 +36,7 @@ export function LogInForm() {
           <div className="flex items-center justify-between">
             <Button type="submit">로그인</Button>
             <Link
+              prefetch
               href="/account/forgot-password"
               className="text-blue-400 hover:underline"
             >
