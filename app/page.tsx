@@ -3,7 +3,6 @@ import { WarnMessage } from './components/WarnMessage'
 import { Link } from 'react-transition-progress/next'
 import { GetSessionReturn, Session } from './components/Session'
 import { CommitListServer } from './components/CommitList.server'
-import { Suspense } from 'react'
 
 type HomeBodyProps = GetSessionReturn
 
@@ -23,11 +22,7 @@ function HomeBody({ isLoggedIn }: HomeBodyProps) {
   }
 
   return (
-    <Suspense fallback={null}>
-      <CommitListServer>
-        {(data) => <CommitList list={data} />}
-      </CommitListServer>
-    </Suspense>
+    <CommitListServer>{(data) => <CommitList list={data} />}</CommitListServer>
   )
 }
 
