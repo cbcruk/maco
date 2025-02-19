@@ -1,14 +1,14 @@
-import { getCommits } from './lib/commit'
-import { CommitSchema } from './schema'
 import { CommitList } from './components/CommitList'
-import { getSession } from './lib/auth'
 import { WarnMessage } from './components/WarnMessage'
 import { Link } from 'react-transition-progress/next'
+import { GetSessionReturn, Session } from './components/Session'
+import { CommitListServer } from './components/CommitList.server'
+import { Suspense } from 'react'
 
-async function Home() {
-  const session = await getSession()
+type HomeBodyProps = GetSessionReturn
 
-  if (!session.isLoggedIn) {
+function HomeBody({ isLoggedIn }: HomeBodyProps) {
+  if (!isLoggedIn) {
     return (
       <div className="px-4">
         <WarnMessage>
@@ -22,15 +22,17 @@ async function Home() {
     )
   }
 
-  const commitResponse = await getCommits()
+  return (
+    <Suspense fallback={null}>
+      <CommitListServer>
+        {(data) => <CommitList list={data} />}
+      </CommitListServer>
+    </Suspense>
+  )
+}
 
-  if (!commitResponse.ok) {
-    return null
-  }
-
-  const data = (await commitResponse.json()) as CommitSchema[]
-
-  return <CommitList list={data} />
+async function Home() {
+  return <Session>{HomeBody}</Session>
 }
 
 export default Home
