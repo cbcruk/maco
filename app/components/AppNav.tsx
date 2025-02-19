@@ -18,7 +18,7 @@ export function AppNav({ isLoggedIn }: AppNavProps) {
       </AppNavLink>
       {isLoggedIn ? (
         <>
-          <AppNavLink href="/commit">
+          <AppNavLink href="/commit" pattern="/commit/{:id}">
             <Pencil1Icon /> 쓰기
           </AppNavLink>
           <AppNavLink href="/account" pattern="/account/{:menu}">
