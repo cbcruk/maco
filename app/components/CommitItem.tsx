@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { Link } from 'react-transition-progress/next'
 import { CommitSchema } from '../schema'
+import { ko } from 'date-fns/locale'
 
 type CommitItemProps = {
   data: CommitSchema
@@ -19,8 +20,8 @@ export function CommitItem({ data: commit }: CommitItemProps) {
         <div className="flex items-center gap-1 text-sm break-keep">
           {commit.message}
         </div>
-        <div className="text-[10px] text-gray-400" title={commit.created}>
-          {format(commit.created, 'HH:mm:ss')}
+        <div className="text-[10px] text-gray-400" title={commit.updated}>
+          {format(commit.created, 'aaa h시 m분', { locale: ko })}
         </div>
       </div>
     </Link>
