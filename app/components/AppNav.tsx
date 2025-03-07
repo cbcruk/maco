@@ -1,21 +1,22 @@
+import { Link } from 'react-transition-progress/next'
 import { GetSessionReturn } from './Session'
 import { AppNavLink } from './AppNavLink'
 import {
   AvatarIcon,
   EnterIcon,
-  HomeIcon,
   IdCardIcon,
   Pencil1Icon,
 } from '@radix-ui/react-icons'
+import { AppNavLogo } from './AppNavLogo'
 
 type AppNavProps = GetSessionReturn
 
 export function AppNav({ isLoggedIn }: AppNavProps) {
   return (
     <nav className="flex items-center gap-3 p-4">
-      <AppNavLink href="/">
-        <HomeIcon /> 홈
-      </AppNavLink>
+      <Link prefetch href="/">
+        <AppNavLogo />
+      </Link>
       {isLoggedIn ? (
         <>
           <AppNavLink href="/commit" pattern="/commit/{:id}">
