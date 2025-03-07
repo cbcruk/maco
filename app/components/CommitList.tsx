@@ -32,7 +32,7 @@ export function CommitList({ list }: CommitListProps) {
         return (
           <CommitListGroup
             key={date}
-            label={format(date, 'yyyy년 MM월 dd일 EEEE', { locale: ko })}
+            label={format(date, 'd일 / EEEE', { locale: ko })}
           >
             {list.map((commit) => {
               return <CommitItem key={commit.id} data={commit} />

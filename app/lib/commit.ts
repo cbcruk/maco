@@ -3,10 +3,19 @@ import { createValTownUrl } from '../helpers/createValTownUrl'
 import { CommitSchema } from '../schema'
 import { getSession } from './auth'
 
-export async function getCommits() {
+type GetCommitsParams = {
+  date?: string
+}
+
+export async function getCommits({ date }: GetCommitsParams) {
   const session = await getSession()
   const url = createValTownUrl('/api/commits')
   url.searchParams.set('user_id', `${session.id}`)
+
+  if (date) {
+    url.searchParams.set('date', date)
+  }
+
   const response = await fetch(url)
 
   return response
