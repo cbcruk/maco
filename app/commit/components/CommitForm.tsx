@@ -4,11 +4,11 @@ import { Button } from '@/app/components/Button'
 import { EmojiSelect } from '@/app/components/EmojiSelect'
 import { ErrorMessage } from '@/app/components/ErrorMessage'
 import { ComponentProps } from 'react'
-import { InitialActionState } from '@/app/helpers/getInitialActionState'
-import { CommitSchema } from '@/app/actions/commit'
+import { InitialActionState } from '@/helpers/getInitialActionState'
+import { CommitSchema } from '@/db/schema'
 
 type CommitFormProps = {
-  defaultValues?: CommitSchema
+  defaultValues?: Pick<CommitSchema, 'emoji' | 'message'>
   errors: InitialActionState['errors']
 } & ComponentProps<'fieldset'>
 

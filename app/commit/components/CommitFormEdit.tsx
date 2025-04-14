@@ -1,7 +1,7 @@
 'use client'
 
-import { updateCommitAction } from '@/app/actions/commit'
-import { getInitialActionState } from '@/app/helpers/getInitialActionState'
+import { updateCommitAction } from '@/app/commit/actions'
+import { getInitialActionState } from '@/helpers/getInitialActionState'
 import { ComponentProps, useActionState } from 'react'
 import { CommitForm } from './CommitForm'
 

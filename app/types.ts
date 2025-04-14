@@ -1,10 +1,7 @@
-import { PropsWithChildren } from 'react'
-import { GetSessionReturn } from './components/Session'
-
-export type HomeBodyProps = PropsWithChildren<GetSessionReturn>
+export type Params = {
+  date?: string
+}
 
 export type HomeProps = {
-  searchParams: Promise<{
-    date?: string
-  }>
+  searchParams: Promise<Params>
 }

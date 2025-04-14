@@ -1,14 +1,15 @@
 import { FC } from 'react'
-import { getSession } from '../lib/auth'
+import { auth } from '@/lib/auth'
+import { Session as NextAuthSession } from 'next-auth'
 
-export type GetSessionReturn = Awaited<ReturnType<typeof getSession>>
+export type SessionReturn = NextAuthSession | null
 
 export type SessionProps = {
-  children: FC<GetSessionReturn>
+  children: FC<SessionReturn>
 }
 
 export async function Session({ children }: SessionProps) {
-  const session = await getSession()
+  const session = await auth()
 
   return <>{children(session)}</>
 }

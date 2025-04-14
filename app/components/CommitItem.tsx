@@ -1,7 +1,7 @@
-import { format } from 'date-fns'
 import { Link } from 'react-transition-progress/next'
-import { CommitSchema } from '../schema'
 import { ko } from 'date-fns/locale'
+import { DateFormatter } from '../../lib/date'
+import { CommitSchema } from '@/db/schema'
 
 type CommitItemProps = {
   data: CommitSchema
@@ -21,7 +21,9 @@ export function CommitItem({ data: commit }: CommitItemProps) {
           {commit.message}
         </div>
         <div className="text-[10px] text-gray-400" title={commit.updated}>
-          {format(commit.created, 'aaa h시 m분', { locale: ko })}
+          {DateFormatter.formatDate(commit.created, 'aaa h시 m분', {
+            locale: ko,
+          })}
         </div>
       </div>
     </Link>

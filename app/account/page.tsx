@@ -1,27 +1,26 @@
-import { Link } from 'react-transition-progress/next'
-import { redirect } from 'next/navigation'
+import { Match } from 'effect'
+import { signIn } from '@/lib/auth'
 import { Session } from '../components/Session'
+import { FormLogin } from './_components/FormLogin'
+import { FormLogout } from './_components/FormLogout'
 
 async function Account() {
   return (
     <Session>
-      {({ isLoggedIn }) => {
-        if (!isLoggedIn) {
-          redirect('/')
-        }
+      {(session) => {
+        return Match.value(session).pipe(
+          Match.when(Match.null, () => (
+            <FormLogin
+              onSubmitAction={async () => {
+                'use server'
 
-        return (
-          <div className="flex gap-2">
-            <Link prefetch href="/account/logout">
-              로그아웃
-            </Link>
-            <Link prefetch href="/account/forgot-password">
-              비밀번호 변경
-            </Link>
-            <Link prefetch href="/account/delete">
-              탈퇴
-            </Link>
-          </div>
+                await signIn('github', {
+                  redirectTo: '/',
+                })
+              }}
+            />
+          )),
+          Match.orElse(() => <FormLogout />)
         )
       }}
     </Session>

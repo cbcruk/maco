@@ -5,5 +5,5 @@ type LayoutProps = {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  return <div className="px-4">{children}</div>
+  return <div className="p-4">{children}</div>
 }

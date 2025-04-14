@@ -1,23 +1,36 @@
 import { FC } from 'react'
-import { getCommits } from '../lib/commit'
-import { CommitSchema } from '../schema'
+import { getCommits } from '../../lib/commit'
+import { User } from 'next-auth'
+import { DateFormatter, getTimeZoneDate } from '../../lib/date'
+import { CommitSchema } from '@/db/schema'
+import { Params } from '../types'
+import { Match } from 'effect'
 
-type CommitListServerProps = {
-  date?: string
+export type CommitListServerProps = {
+  params: {
+    date: Params['date']
+    user_id: User['id']
+  }
   children: FC<CommitSchema[]>
 }
 
 export async function CommitListServer({
-  date,
+  params,
   children,
 }: CommitListServerProps) {
-  const commitResponse = await getCommits({ date })
+  const defaultDate = DateFormatter.formatDate(getTimeZoneDate(), 'yyyy-MM')
 
-  if (!commitResponse.ok) {
-    return null
-  }
+  return Match.value(params).pipe(
+    Match.when({ user_id: Match.undefined }, () => null),
+    Match.when({ user_id: Match.string }, async (params) => {
+      const date = params.date ?? defaultDate
+      const data = await getCommits({
+        user_id: params.user_id,
+        date,
+      })
 
-  const data = (await commitResponse.json()) as CommitSchema[]
-
-  return <>{children(data)}</>
+      return <>{children(data)}</>
+    }),
+    Match.exhaustive
+  )
 }

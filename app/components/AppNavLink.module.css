@@ -3,9 +3,9 @@
 }
 
 .root:hover {
-  @apply font-bold;
+  @apply font-medium;
 }
 
 .root[aria-current='page'] {
-  @apply bg-gray-100 text-gray-900 rounded-lg font-semibold;
+  @apply rounded-lg font-medium;
 }

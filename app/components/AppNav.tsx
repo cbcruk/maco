@@ -1,41 +1,23 @@
 import { Link } from 'react-transition-progress/next'
-import { GetSessionReturn } from './Session'
-import { AppNavLink } from './AppNavLink'
-import {
-  AvatarIcon,
-  EnterIcon,
-  IdCardIcon,
-  Pencil1Icon,
-} from '@radix-ui/react-icons'
 import { AppNavLogo } from './AppNavLogo'
+import { AppNavAccount } from './AppNavAccount'
+import { AppNavLink } from './AppNavLink'
+import { KeyboardIcon } from '@radix-ui/react-icons'
 
-type AppNavProps = GetSessionReturn
-
-export function AppNav({ isLoggedIn }: AppNavProps) {
+export function AppNav() {
   return (
-    <nav className="flex items-center gap-3 p-4">
-      <Link prefetch href="/">
-        <AppNavLogo />
-      </Link>
-      {isLoggedIn ? (
-        <>
-          <AppNavLink href="/commit" pattern="/commit/{:id}">
-            <Pencil1Icon /> 쓰기
-          </AppNavLink>
-          <AppNavLink href="/account" pattern="/account/{:menu}">
-            <AvatarIcon /> 계정
-          </AppNavLink>
-        </>
-      ) : (
-        <>
-          <AppNavLink href="/account/login">
-            <EnterIcon /> 로그인
-          </AppNavLink>
-          <AppNavLink href="/account/signup">
-            <IdCardIcon /> 가입
-          </AppNavLink>
-        </>
-      )}
+    <nav className="flex items-center justify-between p-4">
+      <div className="flex items-center gap-2">
+        <Link prefetch href="/" title="홈">
+          <AppNavLogo />
+        </Link>
+        <AppNavLink href="/commit" pattern="/commit/{:id}" title="기록">
+          <KeyboardIcon />
+        </AppNavLink>
+      </div>
+      <div className="flex">
+        <AppNavAccount />
+      </div>
     </nav>
   )
 }

@@ -1,5 +1,5 @@
-import { ComponentProps } from 'react'
+import { PropsWithChildren } from 'react'
 
-export default function Layout({ children }: ComponentProps<'div'>) {
-  return <div className="px-4">{children}</div>
+export default function Layout({ children }: PropsWithChildren) {
+  return <div className="p-4">{children}</div>
 }

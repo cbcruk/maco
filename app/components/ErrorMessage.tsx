@@ -1,5 +1,5 @@
 import { ComponentProps } from 'react'
-import { InitialActionState } from '../helpers/getInitialActionState'
+import { InitialActionState } from '../../helpers/getInitialActionState'
 
 type ErrorMessageProps = ComponentProps<'div'> &
   Pick<InitialActionState, 'errors'>
