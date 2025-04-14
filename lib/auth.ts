@@ -1,15 +1,17 @@
-import NextAuth, { User } from 'next-auth'
+import NextAuth from 'next-auth'
 import GitHub from 'next-auth/providers/github'
-
-async function createUser(user: User) {
-  console.log(user)
-}
+import { createUser } from './user'
+import { userInsertSchema } from '@/db/schema'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GitHub],
   callbacks: {
-    async signIn({ user }) {
-      await createUser(user)
+    async signIn(params) {
+      const validated = userInsertSchema.safeParse(params.user)
+
+      if (validated.data) {
+        await createUser(validated.data)
+      }
 
       return true
     },

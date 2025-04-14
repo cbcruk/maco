@@ -1,7 +1,7 @@
 import { text, integer, sqliteTable } from 'drizzle-orm/sqlite-core'
-import { createSelectSchema } from 'drizzle-zod'
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 
-const users = sqliteTable('users', {
+export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
@@ -12,7 +12,11 @@ const users = sqliteTable('users', {
 
 export const userSelectSchema = createSelectSchema(users)
 
-export type UserSchema = typeof users.$inferSelect
+export const userInsertSchema = createInsertSchema(users)
+
+export type UserSelectSchema = typeof users.$inferSelect
+
+export type UserInsertSchema = typeof users.$inferInsert
 
 export const commits = sqliteTable('commits', {
   id: integer('id').primaryKey(),

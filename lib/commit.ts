@@ -1,10 +1,10 @@
 import { CommitSchema } from '@/db/schema'
-import { commits, UserSchema } from '@/db/schema'
+import { commits, UserSelectSchema } from '@/db/schema'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
 
 type UserIdSchema = {
-  user_id: UserSchema['id']
+  user_id: UserSelectSchema['id']
 }
 
 type GetCommitsParams = UserIdSchema & {
