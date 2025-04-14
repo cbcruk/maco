@@ -1,23 +1,36 @@
 import NextAuth from 'next-auth'
 import GitHub from 'next-auth/providers/github'
-import { createUser } from './user'
+import { createUser, findUserByEmail } from './user'
 import { userInsertSchema } from '@/db/schema'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GitHub],
   callbacks: {
-    async signIn(params) {
-      const validated = userInsertSchema.safeParse(params.user)
+    async signIn({ user }) {
+      const validatedFields = userInsertSchema
+        .pick({
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        })
+        .safeParse(user)
 
-      if (validated.data) {
-        await createUser(validated.data)
+      if (!validatedFields.error) {
+        const result = await findUserByEmail(validatedFields.data.email)
+
+        if (!result) {
+          await createUser(validatedFields.data)
+        }
       }
 
       return true
     },
-    async session({ session, token }) {
-      if (token.sub) {
-        session.user.id = token.sub
+    async session({ session }) {
+      const user = await findUserByEmail(session.user.email)
+
+      if (user?.id) {
+        session.user.id = user.id
       }
 
       return session
