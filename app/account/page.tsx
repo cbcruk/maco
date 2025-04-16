@@ -1,8 +1,8 @@
 import { Match } from 'effect'
-import { signIn } from '@/lib/auth'
 import { Session } from '../components/Session'
 import { FormLogin } from './_components/FormLogin'
 import { FormLogout } from './_components/FormLogout'
+import { signIn } from '@/lib/auth'
 
 async function Account() {
   return (
@@ -14,9 +14,13 @@ async function Account() {
               onSubmitAction={async () => {
                 'use server'
 
-                await signIn('github', {
-                  redirectTo: '/',
-                })
+                try {
+                  await signIn('github', {
+                    redirectTo: '/',
+                  })
+                } catch (e) {
+                  throw e
+                }
               }}
             />
           )),
