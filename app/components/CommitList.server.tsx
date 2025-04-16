@@ -1,10 +1,10 @@
 import { FC } from 'react'
-import { getCommits } from '../../lib/commit'
 import { User } from 'next-auth'
 import { DateFormatter, getTimeZoneDate } from '../../lib/date'
 import { CommitSchema } from '@/db/schema'
 import { Params } from '../types'
-import { Match } from 'effect'
+import { Effect, Match } from 'effect'
+import { CommitService } from '@/services/Commit'
 
 export type CommitListServerProps = {
   params: {
@@ -24,12 +24,30 @@ export async function CommitListServer({
     Match.when({ user_id: Match.undefined }, () => null),
     Match.when({ user_id: Match.string }, async (params) => {
       const date = params.date ?? defaultDate
-      const data = await getCommits({
-        user_id: params.user_id,
-        date,
-      })
 
-      return <>{children(data)}</>
+      return (
+        <>
+          {await Effect.gen(function* () {
+            const commitService = yield* CommitService
+
+            return yield* commitService
+              .getList({
+                user_id: params.user_id,
+                date,
+              })
+              .pipe(
+                Effect.match({
+                  onSuccess(data) {
+                    return <>{children(data)}</>
+                  },
+                  onFailure(e) {
+                    return <pre>{JSON.stringify(e, null, 2)}</pre>
+                  },
+                })
+              )
+          }).pipe(Effect.provide(CommitService.Default), Effect.runPromise)}
+        </>
+      )
     }),
     Match.exhaustive
   )

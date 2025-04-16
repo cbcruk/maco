@@ -1,75 +1,80 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getMessageFromZodError } from '../../helpers/getMessage'
-import { createCommit, updateCommit } from '../../lib/commit'
+import { toMessage } from '../../helpers/getMessage'
 import { InitialActionState } from '../../helpers/getInitialActionState'
-import { commitSelectSchema } from '@/db/schema'
+import { Effect } from 'effect'
+import { CommitSchemaService, CommitService } from '@/services/Commit'
 
-export async function createCommitAction(
+export const createCommitAction = async (
   _prevState: InitialActionState,
   formData: FormData
-) {
-  const validatedFields = commitSelectSchema
-    .pick({
-      user_id: true,
-      emoji: true,
-      message: true,
-    })
-    .safeParse({
-      user_id: formData.get('user_id'),
-      emoji: formData.get('emoji'),
-      message: formData.get('message'),
-    })
+) =>
+  Effect.runPromise(
+    Effect.gen(function* () {
+      const commitService = yield* CommitService
+      const commitSchemaService = yield* CommitSchemaService
+      const parseResult = yield* commitSchemaService.parseCreateFormData(
+        formData
+      )
 
-  if (!validatedFields.success) {
-    return {
-      data: null,
-      errors: [getMessageFromZodError(validatedFields.error)],
-    }
-  }
+      return yield* commitService.createItem(parseResult)
+    }).pipe(
+      Effect.provide(CommitService.Default),
+      Effect.provide(CommitSchemaService.Default),
+      Effect.match({
+        onSuccess() {
+          revalidatePath('/')
+          revalidatePath('/commit')
 
-  const result = await createCommit(validatedFields.data)
+          return {
+            data: 'SUCCESS',
+            errors: [],
+          }
+        },
+        onFailure(error) {
+          return {
+            data: null,
+            errors: [toMessage(error._tag)],
+          }
+        },
+      })
+    )
+  )
 
-  revalidatePath('/')
-  revalidatePath('/commit')
-
-  return {
-    data: `${result.lastInsertRowid}`,
-    errors: [],
-  }
-}
-
-export async function updateCommitAction(
+export const updateCommitAction = async (
   _prevState: InitialActionState,
   formData: FormData
-) {
-  const validatedFields = commitSelectSchema
-    .pick({
-      id: true,
-      emoji: true,
-      message: true,
-    })
-    .safeParse({
-      id: Number(formData.get('id')),
-      emoji: formData.get('emoji'),
-      message: formData.get('message'),
-    })
+) =>
+  Effect.runPromise(
+    Effect.gen(function* () {
+      const commitService = yield* CommitService
+      const commitSchemaService = yield* CommitSchemaService
+      const parseResult = yield* commitSchemaService.parseUpdateFormData(
+        formData
+      )
+      const { id, ...body } = parseResult
 
-  if (!validatedFields.success) {
-    return {
-      data: null,
-      errors: [getMessageFromZodError(validatedFields.error)],
-    }
-  }
+      return yield* commitService.updateItem({ id }, body)
+    }).pipe(
+      Effect.provide(CommitService.Default),
+      Effect.provide(CommitSchemaService.Default),
+      Effect.match({
+        onSuccess() {
+          revalidatePath('/')
+          revalidatePath('/commit')
 
-  await updateCommit(validatedFields.data)
-
-  revalidatePath('/')
-  revalidatePath('/commit')
-
-  return {
-    data: 'SUCCESS',
-    errors: [],
-  }
-}
+          return {
+            data: 'SUCCESS',
+            errors: [],
+          }
+        },
+        onFailure(error) {
+          return {
+            data: null,
+            errors: [toMessage(error._tag)],
+          }
+        },
+      })
+    )
+  )
