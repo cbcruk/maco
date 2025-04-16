@@ -1,6 +1,5 @@
 import NextAuth from 'next-auth'
 import GitHub from 'next-auth/providers/github'
-import { findUserByEmail } from './user'
 import { userInsertSchema } from '@/db/schema'
 import { Effect } from 'effect'
 import { UserService } from '@/services/User'
