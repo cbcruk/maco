@@ -13,8 +13,8 @@ export async function Session({ children }: SessionProps) {
   return (
     <>
       {await Effect.gen(function* () {
-        const nextAuthResult = yield* NextAuthService
-        const session = yield* nextAuthResult.auth
+        const nextAuthService = yield* NextAuthService
+        const session = yield* nextAuthService.auth()
 
         return session
       }).pipe(

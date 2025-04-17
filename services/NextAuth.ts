@@ -9,16 +9,19 @@ export class NextAuthError extends Data.TaggedError('NextAuthError')<{
 export class NextAuthService extends Effect.Service<NextAuthService>()(
   'NextAuthService',
   {
-    succeed: {
-      auth: Effect.tryPromise({
-        try: () => auth(),
-        catch: (e) =>
-          new NextAuthError({
-            cause: e,
-            message: '인증에러가 발생했습니다.',
+    effect: Effect.gen(function* () {
+      return {
+        auth: () =>
+          Effect.tryPromise({
+            try: () => auth(),
+            catch: (e) =>
+              new NextAuthError({
+                cause: e,
+                message: '인증에러가 발생했습니다.',
+              }),
           }),
-      }),
-    },
+      }
+    }),
   }
 ) {}
 
