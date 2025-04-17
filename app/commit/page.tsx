@@ -3,7 +3,7 @@ import { Session } from '../components/Session'
 import { CommitFormCreate } from './components/CommitFormCreate'
 import { SessionFallback } from '../components/SessionFallback'
 
-async function Commit() {
+function Commit() {
   return (
     <Session>
       {(session) => {
