@@ -4,7 +4,7 @@ import { FormLogin } from './_components/FormLogin'
 import { FormLogout } from './_components/FormLogout'
 import { signIn } from '@/lib/auth'
 
-async function Account() {
+function Account() {
   return (
     <Session>
       {(session) => {
