@@ -11,8 +11,8 @@ async function Home({ searchParams }: HomeProps) {
 
   return (
     <Session>
-      {(session) => {
-        return Option.fromNullable(session?.user).pipe(
+      {(session) =>
+        Option.fromNullable(session?.user).pipe(
           Option.match({
             onNone: () => (
               <div className="p-4">
@@ -29,7 +29,7 @@ async function Home({ searchParams }: HomeProps) {
             ),
           })
         )
-      }}
+      }
     </Session>
   )
 }

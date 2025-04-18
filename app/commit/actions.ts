@@ -4,7 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { toMessage } from '../../helpers/getMessage'
 import { InitialActionState } from '../../helpers/getInitialActionState'
 import { Effect } from 'effect'
-import { CommitSchemaService, CommitService } from '@/services/Commit'
+import { CommitService } from '@/services/Commit'
+import { CommitSchemaService } from '@/services/CommitSchemaService'
 
 export const createCommitAction = async (
   _prevState: InitialActionState,

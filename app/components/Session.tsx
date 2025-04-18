@@ -1,6 +1,6 @@
 import { FC } from 'react'
-import { Session as NextAuthSession } from 'next-auth'
-import { Effect } from 'effect'
+import { Session as NextAuthSession, User } from 'next-auth'
+import { Effect, Option } from 'effect'
 import { NextAuthService } from '@/services/NextAuth'
 
 export type SessionReturn = NextAuthSession | null
@@ -30,5 +30,24 @@ export function Session({ children }: SessionProps) {
         Effect.runPromise
       )}
     </>
+  )
+}
+
+type SessionWithUserIdProps = {
+  children: FC<{ id: Extract<User['id'], string> }>
+}
+
+export function SessionWithUserId({ children }: SessionWithUserIdProps) {
+  return (
+    <Session>
+      {(session) =>
+        Option.fromNullable(session?.user?.id).pipe(
+          Option.match({
+            onNone: () => null,
+            onSome: (id) => <>{children({ id })}</>,
+          })
+        )
+      }
+    </Session>
   )
 }

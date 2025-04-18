@@ -1,12 +1,7 @@
-import { Data, Effect } from 'effect'
+import { Data, Effect, Option, pipe } from 'effect'
 import { DatabaseLive } from './Sql'
 import { SqliteDrizzle } from '@effect/sql-drizzle/Sqlite'
-import {
-  commits,
-  CommitSchema,
-  commitSelectSchema,
-  UserSelectSchema,
-} from '@/db/schema'
+import { commits, CommitSchema, UserSelectSchema } from '@/db/schema'
 import { and, desc, eq, sql } from 'drizzle-orm'
 
 type UserId = {
@@ -14,6 +9,14 @@ type UserId = {
 }
 
 type WithUserId<T> = T & UserId
+
+export type CommitServiceGetItemByIdParams = WithUserId<{
+  id: CommitSchema['id']
+}>
+
+export class NotFoundError extends Data.TaggedError('NotFoundError')<{
+  readonly message?: string
+}> {}
 
 export class CommitService extends Effect.Service<CommitService>()(
   'CommitService',
@@ -36,8 +39,8 @@ export class CommitService extends Effect.Service<CommitService>()(
 
           return results
         },
-        getItemById(params: WithUserId<{ id: CommitSchema['id'] }>) {
-          const result = db
+        getItemById(params: CommitServiceGetItemByIdParams) {
+          return db
             .select()
             .from(commits)
             .where(
@@ -46,8 +49,18 @@ export class CommitService extends Effect.Service<CommitService>()(
                 eq(commits.id, params.id)
               )
             )
-
-          return result
+            .pipe(
+              Effect.flatMap((results) =>
+                pipe(
+                  Option.fromNullable(results.at(0)),
+                  Option.match({
+                    onNone: () =>
+                      Effect.fail(new NotFoundError({ message: '404' })),
+                    onSome: (result) => Effect.succeed(result),
+                  })
+                )
+              )
+            )
         },
         getLatestItem(params: UserId) {
           const result = db
@@ -85,68 +98,5 @@ export class CommitService extends Effect.Service<CommitService>()(
       }
     }),
     dependencies: [DatabaseLive],
-  }
-) {}
-
-export class ZodParseError extends Data.TaggedError('ZodParseError')<{
-  readonly message: string
-  readonly cause: unknown
-}> {}
-
-export class CommitSchemaService extends Effect.Service<CommitSchemaService>()(
-  'CommitSchemaService',
-  {
-    effect: Effect.gen(function* () {
-      return {
-        parseCreateFormData(formData: FormData) {
-          const parseResult = commitSelectSchema
-            .pick({
-              user_id: true,
-              emoji: true,
-              message: true,
-            })
-            .safeParse({
-              user_id: formData.get('user_id'),
-              emoji: formData.get('emoji'),
-              message: formData.get('message'),
-            })
-
-          if (parseResult.error) {
-            return Effect.fail(
-              new ZodParseError({
-                message: parseResult.error.message,
-                cause: parseResult.error.cause,
-              })
-            )
-          }
-
-          return Effect.succeed(parseResult.data)
-        },
-        parseUpdateFormData(formData: FormData) {
-          const parseResult = commitSelectSchema
-            .pick({
-              id: true,
-              emoji: true,
-              message: true,
-            })
-            .safeParse({
-              id: Number(formData.get('id')),
-              emoji: formData.get('emoji'),
-              message: formData.get('message'),
-            })
-
-          if (parseResult.error) {
-            return Effect.fail(
-              new ZodParseError({
-                message: parseResult.error.message,
-                cause: parseResult.error.cause,
-              })
-            )
-          }
-
-          return Effect.succeed(parseResult.data)
-        },
-      }
-    }),
   }
 ) {}
