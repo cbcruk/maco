@@ -1,4 +1,4 @@
-import { Match } from 'effect'
+import { Option } from 'effect'
 import { Session } from '../components/Session'
 import { CommitFormCreate } from './components/CommitFormCreate'
 import { SessionFallback } from '../components/SessionFallback'
@@ -6,20 +6,22 @@ import { SessionFallback } from '../components/SessionFallback'
 function Commit() {
   return (
     <Session>
-      {(session) => {
-        return Match.value(session?.user).pipe(
-          Match.when(Match.undefined, () => <SessionFallback />),
-          Match.orElse(() => (
-            <CommitFormCreate>
-              <input
-                type="hidden"
-                name="user_id"
-                defaultValue={session?.user?.id}
-              />
-            </CommitFormCreate>
-          ))
+      {(session) =>
+        Option.fromNullable(session).pipe(
+          Option.match({
+            onSome: (session) => (
+              <CommitFormCreate>
+                <input
+                  type="hidden"
+                  name="user_id"
+                  defaultValue={session.user?.id}
+                />
+              </CommitFormCreate>
+            ),
+            onNone: () => <SessionFallback />,
+          })
         )
-      }}
+      }
     </Session>
   )
 }

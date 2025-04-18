@@ -1,33 +1,23 @@
-import { Match } from 'effect'
-import { Session } from '../components/Session'
+'use client'
+
+import { Option } from 'effect'
 import { FormLogin } from './_components/FormLogin'
 import { FormLogout } from './_components/FormLogout'
-import { signIn } from '@/lib/auth'
+import { useSession } from 'next-auth/react'
+import { Suspense } from 'react'
 
 function Account() {
-  return (
-    <Session>
-      {(session) => {
-        return Match.value(session).pipe(
-          Match.when(Match.null, () => (
-            <FormLogin
-              onSubmitAction={async () => {
-                'use server'
+  const session = useSession()
 
-                try {
-                  await signIn('github', {
-                    redirectTo: '/',
-                  })
-                } catch (e) {
-                  throw e
-                }
-              }}
-            />
-          )),
-          Match.orElse(() => <FormLogout />)
-        )
-      }}
-    </Session>
+  return (
+    <Suspense>
+      {Option.fromNullable(session.data).pipe(
+        Option.match({
+          onSome: () => <FormLogout />,
+          onNone: () => <FormLogin />,
+        })
+      )}
+    </Suspense>
   )
 }
 
