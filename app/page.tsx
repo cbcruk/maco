@@ -1,36 +1,30 @@
 import { CommitList } from './components/CommitList'
-import { Session } from './components/Session'
+import { SessionWithUserId } from './components/Session'
 import { CommitListServer } from './components/CommitList.server'
 import { CommitListNav } from './components/CommitListNav'
 import { HomeProps } from './types'
-import { Option } from 'effect'
 import { SessionFallback } from './components/SessionFallback'
 
 async function Home({ searchParams }: HomeProps) {
   const { date } = await searchParams
 
   return (
-    <Session>
-      {(session) =>
-        Option.fromNullable(session?.user).pipe(
-          Option.match({
-            onNone: () => (
-              <div className="p-4">
-                <SessionFallback />
-              </div>
-            ),
-            onSome: (user) => (
-              <>
-                <CommitListNav />
-                <CommitListServer params={{ date, user_id: user.id }}>
-                  {(data) => <CommitList list={data} />}
-                </CommitListServer>
-              </>
-            ),
-          })
-        )
+    <SessionWithUserId
+      fallback={
+        <div className="p-4">
+          <SessionFallback />
+        </div>
       }
-    </Session>
+    >
+      {({ id: user_id }) => (
+        <>
+          <CommitListNav />
+          <CommitListServer params={{ date, user_id }}>
+            {(data) => <CommitList list={data} />}
+          </CommitListServer>
+        </>
+      )}
+    </SessionWithUserId>
   )
 }
 

@@ -1,10 +1,14 @@
 import { SqliteDrizzle } from '@effect/sql-drizzle/Sqlite'
 import { DatabaseLive } from './Sql'
-import { Effect } from 'effect'
+import { Data, Effect, Option, pipe } from 'effect'
 import { UserInsertSchema, users, UserSelectSchema } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 
 type CreateUserParams = Omit<UserInsertSchema, 'created' | 'updated'>
+
+export class NotFoundError extends Data.TaggedError('NotFoundError')<{
+  readonly message?: string
+}> {}
 
 export class UserService extends Effect.Service<UserService>()('UserService', {
   effect: Effect.gen(function* () {
@@ -22,7 +26,22 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
         return result
       },
       findUserByEmail(email: UserSelectSchema['email']) {
-        const result = db.select().from(users).where(eq(users.email, email))
+        const result = db
+          .select()
+          .from(users)
+          .where(eq(users.email, email))
+          .pipe(
+            Effect.flatMap((results) =>
+              pipe(
+                Option.fromNullable(results.at(0)),
+                Option.match({
+                  onNone: () =>
+                    Effect.fail(new NotFoundError({ message: '404' })),
+                  onSome: (result) => Effect.succeed(result),
+                })
+              )
+            )
+          )
 
         return result
       },

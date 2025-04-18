@@ -1,54 +1,39 @@
 import { FC } from 'react'
-import { User } from 'next-auth'
 import { DateFormatter, getTimeZoneDate } from '../../lib/date'
-import { CommitSchema } from '@/db/schema'
+import { CommitSchema, UserSelectSchema } from '@/db/schema'
 import { Params } from '../types'
-import { Effect, Match } from 'effect'
+import { Effect } from 'effect'
 import { CommitService } from '@/services/Commit'
 
 export type CommitListServerProps = {
   params: {
     date: Params['date']
-    user_id: User['id']
+    user_id: UserSelectSchema['id']
   }
   children: FC<CommitSchema[]>
 }
 
-export async function CommitListServer({
-  params,
-  children,
-}: CommitListServerProps) {
-  const defaultDate = DateFormatter.formatDate(getTimeZoneDate(), 'yyyy-MM')
+const DEFAULT_DATE = DateFormatter.formatDate(getTimeZoneDate(), 'yyyy-MM')
 
-  return Match.value(params).pipe(
-    Match.when({ user_id: Match.undefined }, () => null),
-    Match.when({ user_id: Match.string }, async (params) => {
-      const date = params.date ?? defaultDate
+export function CommitListServer({ params, children }: CommitListServerProps) {
+  return (
+    <>
+      {Effect.gen(function* () {
+        const commitService = yield* CommitService
+        const results = yield* commitService.getList({
+          user_id: params.user_id,
+          date: params.date ?? DEFAULT_DATE,
+        })
 
-      return (
-        <>
-          {await Effect.gen(function* () {
-            const commitService = yield* CommitService
-
-            return yield* commitService
-              .getList({
-                user_id: params.user_id,
-                date,
-              })
-              .pipe(
-                Effect.match({
-                  onSuccess(data) {
-                    return <>{children(data)}</>
-                  },
-                  onFailure(e) {
-                    return <pre>{JSON.stringify(e, null, 2)}</pre>
-                  },
-                })
-              )
-          }).pipe(Effect.provide(CommitService.Default), Effect.runPromise)}
-        </>
-      )
-    }),
-    Match.exhaustive
+        return results
+      }).pipe(
+        Effect.provide(CommitService.Default),
+        Effect.match({
+          onSuccess: (data) => <>{children(data)}</>,
+          onFailure: (e) => <pre>{e._tag}</pre>,
+        }),
+        Effect.runPromise
+      )}
+    </>
   )
 }

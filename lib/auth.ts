@@ -20,27 +20,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .safeParse(user)
 
         if (validatedFields.error) {
-          return yield* Effect.fail(new Error())
+          return yield* Effect.fail(validatedFields.error)
         }
 
-        yield* userService
-          .findUserByEmail(validatedFields.data.email)
-          .pipe(
-            Effect.flatMap((result) =>
-              result.at(0)
-                ? Effect.void
-                : userService.createUser(validatedFields.data)
-            )
-          )
+        yield* userService.findUserByEmail(validatedFields.data.email)
       }).pipe(
         Effect.provide(UserService.Default),
         Effect.match({
-          onSuccess() {
-            return true
-          },
-          onFailure() {
-            return false
-          },
+          onSuccess: () => true,
+          onFailure: () => false,
         }),
         Effect.runPromise
       )
@@ -50,11 +38,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const userService = yield* UserService
 
         yield* userService.findUserByEmail(session.user.email).pipe(
-          Effect.flatMap((result) => Effect.succeed(result.at(0))),
-          Effect.tap((user) => {
-            if (user) {
+          Effect.match({
+            onSuccess(user) {
               session.user.id = user.id
-            }
+            },
+            onFailure: () => Effect.void,
           })
         )
 

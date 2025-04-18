@@ -2,27 +2,11 @@ import { CommitFormEdit } from '../components/CommitFormEdit'
 import { Effect, pipe, Schema } from 'effect'
 import { SessionWithUserId } from '@/app/components/Session'
 import { CommitService } from '@/services/Commit'
-import { FC } from 'react'
-import { CommitSchema, UserSelectSchema } from '@/db/schema'
-
-type CommitDetailParams = { id: string }
-
-type CommitDetailProps = { params: Promise<CommitDetailParams> }
-
-type CommitId = CommitSchema['id']
-
-type CommitDetailParamsProps = {
-  params: CommitDetailProps['params']
-  children: FC<{ id: CommitId }>
-}
-
-type CommitDetailQueryProps = {
-  params: {
-    id: CommitId
-    user_id: UserSelectSchema['id']
-  }
-  children: FC<{ data: CommitSchema }>
-}
+import {
+  CommitDetailQueryProps,
+  CommitDetailParamsProps,
+  CommitDetailProps,
+} from './types'
 
 async function CommitDetailQuery({ params, children }: CommitDetailQueryProps) {
   return Effect.gen(function* () {
@@ -33,9 +17,7 @@ async function CommitDetailQuery({ params, children }: CommitDetailQueryProps) {
   }).pipe(
     Effect.provide(CommitService.Default),
     Effect.match({
-      onSuccess: (data) => {
-        return <>{children({ data })}</>
-      },
+      onSuccess: (data) => <>{children({ data })}</>,
       onFailure: (error) => <pre>{JSON.stringify(error, null, 2)}</pre>,
     }),
     Effect.runPromise
@@ -63,18 +45,16 @@ async function CommitDetail({ params }: CommitDetailProps) {
         <SessionWithUserId>
           {({ id: user_id }) => (
             <CommitDetailQuery params={{ id, user_id }}>
-              {({ data }) => {
-                return (
-                  <CommitFormEdit
-                    defaultValues={{
-                      emoji: data.emoji,
-                      message: data.message,
-                    }}
-                  >
-                    <input type="hidden" name="id" defaultValue={id} />
-                  </CommitFormEdit>
-                )
-              }}
+              {({ data }) => (
+                <CommitFormEdit
+                  defaultValues={{
+                    emoji: data.emoji,
+                    message: data.message,
+                  }}
+                >
+                  <input type="hidden" name="id" defaultValue={id} />
+                </CommitFormEdit>
+              )}
             </CommitDetailQuery>
           )}
         </SessionWithUserId>

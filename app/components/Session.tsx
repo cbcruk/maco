@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { Session as NextAuthSession, User } from 'next-auth'
 import { Effect, Option } from 'effect'
 import { NextAuthService } from '@/services/NextAuth'
@@ -34,16 +34,20 @@ export function Session({ children }: SessionProps) {
 }
 
 type SessionWithUserIdProps = {
+  fallback?: ReactNode
   children: FC<{ id: Extract<User['id'], string> }>
 }
 
-export function SessionWithUserId({ children }: SessionWithUserIdProps) {
+export function SessionWithUserId({
+  children,
+  fallback = null,
+}: SessionWithUserIdProps) {
   return (
     <Session>
       {(session) =>
         Option.fromNullable(session?.user?.id).pipe(
           Option.match({
-            onNone: () => null,
+            onNone: () => fallback,
             onSome: (id) => <>{children({ id })}</>,
           })
         )
