@@ -2,7 +2,7 @@ import { Link } from 'react-transition-progress/next'
 import { AppNavLogo } from './AppNavLogo'
 import { AppNavAccount } from './AppNavAccount'
 import { AppNavLink } from './AppNavLink'
-import { KeyboardIcon } from '@radix-ui/react-icons'
+import Image from 'next/image'
 
 export function AppNav() {
   return (
@@ -12,7 +12,7 @@ export function AppNav() {
           <AppNavLogo />
         </Link>
         <AppNavLink href="/commit" pattern="/commit/{:id}" title="기록">
-          <KeyboardIcon />
+          <Image src="/icons/keyboard.svg" alt="" width={24} height={24} />
         </AppNavLink>
       </div>
       <div className="flex">
