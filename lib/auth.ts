@@ -23,25 +23,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return yield* Effect.fail(validatedFields.error)
         }
 
-        yield* userService.findUserByEmail(validatedFields.data.email)
-      }).pipe(
-        Effect.provide(UserService.Default),
-        Effect.match({
-          onSuccess: () => true,
-          onFailure: () => false,
-        }),
-        Effect.runPromise
-      )
+        yield* userService
+          .findUserByEmail(validatedFields.data.email)
+          .pipe(
+            Effect.catchTag('NotFoundError', () =>
+              userService.createUser(validatedFields.data)
+            )
+          )
+
+        return true
+      }).pipe(Effect.provide(UserService.Default), Effect.runPromise)
     },
     async session({ session }) {
-      return Effect.gen(function* () {
+      return await Effect.gen(function* () {
         const userService = yield* UserService
 
         yield* userService.findUserByEmail(session.user.email).pipe(
-          Effect.match({
-            onSuccess(user) {
-              session.user.id = user.id
-            },
+          Effect.matchEffect({
+            onSuccess: (user) =>
+              Effect.sync(() => {
+                session.user.id = user.id
+              }),
             onFailure: () => Effect.void,
           })
         )
