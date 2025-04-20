@@ -32,6 +32,7 @@
     "react-day-picker": "^9.5.1",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-transition-progress": "^0.0.4",
+    "tailwind-merge": "^3.2.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
