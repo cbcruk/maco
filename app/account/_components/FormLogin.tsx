@@ -1,10 +1,9 @@
-import { useActionState } from 'react'
-import { FormSubmit } from './FormSubmit'
+import { ComponentProps, useActionState } from 'react'
 import { signIn } from 'next-auth/react'
 
-export function FormLogin() {
+export function FormLogin({ children, ...props }: ComponentProps<'form'>) {
   const [, formAction] = useActionState(
-    () =>
+    async () =>
       signIn('github', {
         redirectTo: '/',
       }),
@@ -12,8 +11,8 @@ export function FormLogin() {
   )
 
   return (
-    <form action={formAction}>
-      <FormSubmit>로그인</FormSubmit>
+    <form action={formAction} {...props}>
+      {children}
     </form>
   )
 }

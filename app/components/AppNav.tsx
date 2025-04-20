@@ -1,6 +1,6 @@
 import { Link } from 'react-transition-progress/next'
 import { AppNavLogo } from './AppNavLogo'
-import { AppNavAccount } from './AppNavAccount'
+import { AppNavAccount } from './AppNavAccount/AppNavAccount'
 import { AppNavLink } from './AppNavLink'
 import Image from 'next/image'
 

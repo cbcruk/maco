@@ -1,15 +1,10 @@
 'use client'
 
 import { signOut } from 'next-auth/react'
-import { FormSubmit } from './FormSubmit'
-import { useActionState } from 'react'
+import { PropsWithChildren, useActionState } from 'react'
 
-export function FormLogout() {
+export function FormLogout({ children }: PropsWithChildren) {
   const [, formAction] = useActionState(() => signOut(), false)
 
-  return (
-    <form action={formAction}>
-      <FormSubmit>로그아웃</FormSubmit>
-    </form>
-  )
+  return <form action={formAction}>{children}</form>
 }
