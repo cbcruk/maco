@@ -25,6 +25,11 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
 
         return result
       },
+      updateUser(id: UserSelectSchema['id'], body: Partial<CreateUserParams>) {
+        const result = db.update(users).set(body).where(eq(users.id, id))
+
+        return result
+      },
       findUserByEmail(email: UserSelectSchema['email']) {
         const result = db
           .select()
