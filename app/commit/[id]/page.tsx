@@ -1,20 +1,27 @@
 import { CommitFormEdit } from '../components/CommitFormEdit'
 import { Effect, pipe, Schema } from 'effect'
-import { SessionWithUserId } from '@/app/components/Session'
 import { CommitService } from '@/services/Commit'
 import {
   CommitDetailQueryProps,
   CommitDetailParamsProps,
   CommitDetailProps,
 } from './types'
+import { NextAuthService } from '@/services/NextAuth'
 
 async function CommitDetailQuery({ params, children }: CommitDetailQueryProps) {
   return Effect.gen(function* () {
     const commitService = yield* CommitService
-    const result = yield* commitService.getItemById(params)
+    const nextAuthService = yield* NextAuthService
+
+    const userId = yield* nextAuthService.getUserId()
+    const result = yield* commitService.getItemById({
+      user_id: userId,
+      id: params.id,
+    })
 
     return result
   }).pipe(
+    Effect.provide(NextAuthService.Default),
     Effect.provide(CommitService.Default),
     Effect.match({
       onSuccess: (data) => <>{children({ data })}</>,
@@ -42,22 +49,18 @@ async function CommitDetail({ params }: CommitDetailProps) {
   return (
     <CommitDetailParams params={params}>
       {({ id }) => (
-        <SessionWithUserId>
-          {({ id: user_id }) => (
-            <CommitDetailQuery params={{ id, user_id }}>
-              {({ data }) => (
-                <CommitFormEdit
-                  defaultValues={{
-                    emoji: data.emoji,
-                    message: data.message,
-                  }}
-                >
-                  <input type="hidden" name="id" defaultValue={id} />
-                </CommitFormEdit>
-              )}
-            </CommitDetailQuery>
+        <CommitDetailQuery params={{ id }}>
+          {({ data }) => (
+            <CommitFormEdit
+              defaultValues={{
+                emoji: data.emoji,
+                message: data.message,
+              }}
+            >
+              <input type="hidden" name="id" defaultValue={id} />
+            </CommitFormEdit>
           )}
-        </SessionWithUserId>
+        </CommitDetailQuery>
       )}
     </CommitDetailParams>
   )

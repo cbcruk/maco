@@ -1,4 +1,4 @@
-import { CommitSchema, UserSelectSchema } from '@/db/schema'
+import { CommitSchema } from '@/db/schema'
 import { FC } from 'react'
 
 type CommitDetailParams = { id: string }
@@ -13,8 +13,6 @@ export type CommitDetailParamsProps = {
 }
 
 export type CommitDetailQueryProps = {
-  params: CommitId & {
-    user_id: UserSelectSchema['id']
-  }
+  params: CommitId
   children: FC<{ data: CommitSchema }>
 }
