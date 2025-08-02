@@ -36,7 +36,9 @@ export class NextAuthService extends Effect.Service<NextAuthService>()(
                 },
                 onNone() {
                   return Effect.fail(
-                    new SessionError({ message: '세션정보가 없습니다.' })
+                    new SessionError({
+                      message: '세션정보가 없습니다.',
+                    })
                   )
                 },
               })
