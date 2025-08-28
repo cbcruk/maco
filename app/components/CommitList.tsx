@@ -3,7 +3,7 @@ import { groupBy } from 'es-toolkit'
 import { CommitListGroup } from './CommitListGroup'
 import { CommitItem } from './CommitItem'
 import { CommitSchema } from '@/db/schema'
-import { DateFormatter } from '../../lib/date'
+import { DateFormatter, getTimeZoneDate } from '../../lib/date'
 import { Match } from 'effect'
 
 type CommitListProps = {
@@ -32,9 +32,13 @@ export function CommitList({ list }: CommitListProps) {
             return (
               <CommitListGroup
                 key={date}
-                label={DateFormatter.formatDate(date, 'd일 / EEEE', {
-                  locale: ko,
-                })}
+                label={DateFormatter.formatDate(
+                  getTimeZoneDate(new Date(date)),
+                  'd일 / EEEE',
+                  {
+                    locale: ko,
+                  }
+                )}
               >
                 {list.map((commit) => {
                   return <CommitItem key={commit.id} data={commit} />
