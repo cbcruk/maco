@@ -4,6 +4,7 @@ import { SessionProvider } from 'next-auth/react'
 import { ProgressBar, ProgressBarProvider } from 'react-transition-progress'
 import { AppNav } from './components/AppNav'
 import './globals.css'
+import { getServerTimezone } from '@/lib/timezone'
 
 export const metadata: Metadata = {
   title: 'maco',
@@ -20,6 +21,8 @@ type RootLayoutProps = Readonly<{
 }>
 
 async function RootLayout({ children }: RootLayoutProps) {
+  getServerTimezone()
+
   return (
     <html lang="ko">
       <body className={`${notoSans.className} antialiased text-xs`}>

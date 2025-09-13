@@ -1,7 +1,6 @@
 import { Link } from 'react-transition-progress/next'
-import { ko } from 'date-fns/locale'
-import { DateFormatter, getTimeZoneDate } from '../../lib/date'
 import { CommitSchema } from '@/db/schema'
+import { CommitDate } from './CommitDate'
 
 type CommitItemProps = {
   data: CommitSchema
@@ -21,13 +20,7 @@ export function CommitItem({ data: commit }: CommitItemProps) {
           {commit.message}
         </div>
         <div className="text-[10px] text-gray-400" title={commit.updated}>
-          {DateFormatter.formatDate(
-            getTimeZoneDate(new Date(commit.created)),
-            'aaa h시 m분',
-            {
-              locale: ko,
-            }
-          )}
+          <CommitDate date={commit.created} formatStr="aaa h시 m분" />
         </div>
       </div>
     </Link>

@@ -1,10 +1,11 @@
-import { ko } from 'date-fns/locale'
 import { groupBy } from 'es-toolkit'
 import { CommitListGroup } from './CommitListGroup'
 import { CommitItem } from './CommitItem'
 import { CommitSchema } from '@/db/schema'
-import { DateFormatter, getTimeZoneDate } from '../../lib/date'
 import { Match } from 'effect'
+import { DateFormatter, getTimezoneDate } from '@/lib/date'
+import { ko } from 'date-fns/locale/ko'
+import { getServerTimezone } from '@/lib/timezone'
 
 type CommitListProps = {
   list: CommitSchema[]
@@ -19,7 +20,9 @@ function CommitListEmpty() {
   )
 }
 
-export function CommitList({ list }: CommitListProps) {
+export async function CommitList({ list }: CommitListProps) {
+  const timezone = await getServerTimezone()
+
   return Match.value(list.length).pipe(
     Match.when(0, () => <CommitListEmpty />),
     Match.orElse(() => {
@@ -29,17 +32,17 @@ export function CommitList({ list }: CommitListProps) {
       return (
         <div className="flex flex-col">
           {entries.map(([date, list]) => {
+            const timezoneDate = getTimezoneDate(new Date(date), timezone)
+            const label = DateFormatter.formatDate({
+              date: timezoneDate,
+              formatStr: 'd일 / EEEE',
+              options: {
+                locale: ko,
+              },
+            })
+
             return (
-              <CommitListGroup
-                key={date}
-                label={DateFormatter.formatDate(
-                  getTimeZoneDate(new Date(date)),
-                  'd일 / EEEE',
-                  {
-                    locale: ko,
-                  }
-                )}
-              >
+              <CommitListGroup key={date} label={label}>
                 {list.map((commit) => {
                   return <CommitItem key={commit.id} data={commit} />
                 })}

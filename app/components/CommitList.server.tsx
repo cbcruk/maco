@@ -1,10 +1,11 @@
 import { FC } from 'react'
-import { DateFormatter, getTimeZoneDate } from '../../lib/date'
+import { DateFormatter, getTimezoneDate } from '../../lib/date'
 import { CommitSchema } from '@/db/schema'
 import { Params } from '../types'
 import { Effect } from 'effect'
 import { CommitService } from '@/services/Commit'
 import { NextAuthService } from '@/services/NextAuth'
+import { getServerTimezone } from '@/lib/timezone'
 
 export type CommitListServerProps = {
   params: {
@@ -13,9 +14,16 @@ export type CommitListServerProps = {
   children: FC<CommitSchema[]>
 }
 
-const DEFAULT_DATE = DateFormatter.formatDate(getTimeZoneDate(), 'yyyy-MM')
+export async function CommitListServer({
+  params,
+  children,
+}: CommitListServerProps) {
+  const timezone = await getServerTimezone()
+  const fallbackDate = DateFormatter.formatDate({
+    date: getTimezoneDate(new Date(), timezone),
+    formatStr: 'yyyy-MM',
+  })
 
-export function CommitListServer({ params, children }: CommitListServerProps) {
   return (
     <>
       {Effect.gen(function* () {
@@ -25,7 +33,7 @@ export function CommitListServer({ params, children }: CommitListServerProps) {
         const userId = yield* nextAuthService.getUserId()
         const results = yield* commitService.getList({
           user_id: userId,
-          date: params.date ?? DEFAULT_DATE,
+          date: params.date ?? fallbackDate,
         })
 
         return results

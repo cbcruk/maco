@@ -1,7 +1,7 @@
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, ReactNode } from 'react'
 
 type CommitListGroupProps = PropsWithChildren<{
-  label: string
+  label: ReactNode
 }>
 
 export function CommitListGroup({ label, children }: CommitListGroupProps) {

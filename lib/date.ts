@@ -1,10 +1,18 @@
 import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns'
 
-export function getTimeZoneDate(defaultDate = new Date()) {
-  const date = new TZDate(defaultDate, 'Asia/Seoul')
+export function getTimezoneDate(defaultDate = new Date(), timezone?: TZName) {
+  const date = new TZDate(defaultDate, timezone)
 
   return date
+}
+
+type FormatParams = Parameters<typeof format>
+
+export type FormatDateParams = {
+  date: FormatParams[0]
+  formatStr: keyof typeof DateFormatter.formatMapping
+  options?: FormatParams[2]
 }
 
 export class DateFormatter {
@@ -15,11 +23,9 @@ export class DateFormatter {
     'd일 / EEEE': 'd일 / EEEE',
   }
 
-  static formatDate(
-    date: Parameters<typeof format>[0],
-    formatStr: keyof typeof this.formatMapping,
-    options?: Parameters<typeof format>[2]
-  ) {
+  static formatDate({ date, formatStr, options }: FormatDateParams) {
     return format(date, this.formatMapping[formatStr], options)
   }
 }
+
+export type TZName = TZDate['timeZone']
