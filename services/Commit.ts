@@ -52,7 +52,7 @@ export class CommitService extends Effect.Service<CommitService>()(
           const results = db
             .select()
             .from(commits)
-            .orderBy(desc(commits.created))
+            .orderBy(desc(commits.pinned), desc(commits.created))
             .where(and(...conditions))
 
           if (!tag) {
@@ -124,7 +124,8 @@ export class CommitService extends Effect.Service<CommitService>()(
           return result
         },
         createItem(
-          body: UserId & Omit<CommitSchema, 'id' | 'created' | 'updated'>
+          body: UserId &
+            Omit<CommitSchema, 'id' | 'created' | 'updated' | 'pinned'>
         ) {
           const now = new Date().toISOString()
           const result = db.insert(commits).values({
@@ -145,6 +146,20 @@ export class CommitService extends Effect.Service<CommitService>()(
             .where(eq(commits.id, params.id))
 
           return result
+        },
+        setPinned(
+          params: WithUserId<Pick<CommitSchema, 'id'>>,
+          pinned: CommitSchema['pinned']
+        ) {
+          return db
+            .update(commits)
+            .set({ pinned, updated: new Date().toISOString() })
+            .where(
+              and(
+                eq(commits.id, params.id),
+                eq(commits.user_id, params.user_id)
+              )
+            )
         },
       }
     }),

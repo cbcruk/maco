@@ -22,6 +22,7 @@ export const commits = sqliteTable('commits', {
   id: integer('id').primaryKey(),
   message: text('message').notNull(),
   emoji: text('emoji').notNull(),
+  pinned: integer('pinned', { mode: 'boolean' }).notNull().default(false),
   updated: text('updated').notNull(),
   created: text('created').notNull(),
   user_id: text('user_id')
