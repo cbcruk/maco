@@ -1,6 +1,7 @@
 import { Link } from 'react-transition-progress/next'
 import { CommitSchema } from '@/db/schema'
 import { CommitDate } from './CommitDate'
+import { Markdown } from './Markdown'
 
 type CommitItemProps = {
   data: CommitSchema
@@ -8,21 +9,27 @@ type CommitItemProps = {
 
 export function CommitItem({ data: commit }: CommitItemProps) {
   return (
-    <Link
-      key={commit.id}
-      prefetch
-      href={`/commit/${commit.id}`}
-      className="flex gap-2 items-start p-4 py-2 border-b border-solid border-gray-900 hover:bg-gray-900 transition-all"
-    >
-      <span className="text-2xl">{commit.emoji}</span>
-      <div className="flex flex-col gap-0.5">
-        <div className="flex items-center gap-1 text-sm break-keep">
-          {commit.message}
+    <div className="relative flex gap-2 items-start p-4 py-2 border-b border-solid border-gray-900 hover:bg-gray-900 transition-all">
+      <Link
+        prefetch
+        href={`/commit/${commit.id}`}
+        aria-label="커밋 상세 보기"
+        className="absolute inset-0"
+      />
+      <span className="relative text-2xl pointer-events-none">
+        {commit.emoji}
+      </span>
+      <div className="relative flex flex-col gap-0.5 min-w-0">
+        <div className="text-sm pointer-events-none [&_a]:pointer-events-auto">
+          <Markdown>{commit.message}</Markdown>
         </div>
-        <div className="text-[10px] text-gray-400" title={commit.updated}>
+        <div
+          className="text-[10px] text-gray-400 pointer-events-none"
+          title={commit.updated}
+        >
           <CommitDate date={commit.created} formatStr="aaa h시 m분" />
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
