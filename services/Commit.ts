@@ -67,6 +67,18 @@ export class CommitService extends Effect.Service<CommitService>()(
             )
           )
         },
+        getActivity(params: UserId) {
+          // created 는 ISO 문자열이라 substr(1,10) 이 'YYYY-MM-DD' (UTC).
+          // CommitList 의 created.slice(0, 10) 그룹핑과 동일한 기준.
+          return db
+            .select({
+              day: sql<string>`substr(${commits.created}, 1, 10)`.as('day'),
+              count: sql<number>`count(*)`,
+            })
+            .from(commits)
+            .where(eq(commits.user_id, params.user_id))
+            .groupBy(sql`day`)
+        },
         getTags(params: UserId) {
           return db
             .select({ message: commits.message })

@@ -3,6 +3,7 @@ import { Session } from './components/Session'
 import { CommitListServer } from './components/CommitList.server'
 import { CommitListNav } from './components/CommitListNav'
 import { TagFilterServer } from './components/TagFilter.server'
+import { ActivityHeatmapServer } from './components/ActivityHeatmap.server'
 import { SearchBox } from './components/SearchBox'
 import { HomeProps } from './types'
 import { getServerTimezone } from '@/lib/timezone'
@@ -17,6 +18,7 @@ async function Home({ searchParams }: HomeProps) {
     <Session>
       {() => (
         <TimezoneProvider value={{ timezone }}>
+          {!isFiltered && <ActivityHeatmapServer />}
           {!isFiltered && <CommitListNav />}
           <SearchBox defaultValue={q} />
           <TagFilterServer activeTag={tag} />
