@@ -30,45 +30,42 @@ export class CommitService extends Effect.Service<CommitService>()(
           params: WithUserId<{
             date: CommitSchema['created']
             tag?: string
+            q?: string
           }>
         ) {
-          if (params.tag) {
-            const tag = params.tag
+          const { tag, q } = params
+          // 태그·검색어가 있으면 기간에 상관없이 전체에서 조회한다.
+          const isFiltered = Boolean(tag || q)
 
-            // 태그 필터는 기간에 상관없이 전체에서 조회한다.
-            // LIKE 는 부분 일치라 `#js` 가 `#json` 을 매칭할 수 있으므로
-            // parseTags 로 정확히 일치하는 항목만 남긴다.
-            return db
-              .select()
-              .from(commits)
-              .orderBy(desc(commits.created))
-              .where(
-                and(
-                  eq(commits.user_id, params.user_id),
-                  like(commits.message, `%#${tag}%`)
-                )
-              )
-              .pipe(
-                Effect.map((results) =>
-                  results.filter((commit) =>
-                    parseTags(commit.message).includes(tag)
-                  )
-                )
-              )
+          const conditions = [eq(commits.user_id, params.user_id)]
+
+          if (q) {
+            conditions.push(like(commits.message, `%${q}%`))
+          }
+
+          if (!isFiltered) {
+            conditions.push(
+              sql`strftime('%Y-%m', ${commits.created}) = ${params.date}`
+            )
           }
 
           const results = db
             .select()
             .from(commits)
             .orderBy(desc(commits.created))
-            .where(
-              and(
-                eq(commits.user_id, params.user_id),
-                sql`strftime('%Y-%m', ${commits.created}) = ${params.date}`
-              )
-            )
+            .where(and(...conditions))
 
-          return results
+          if (!tag) {
+            return results
+          }
+
+          // LIKE 검색은 부분 일치라 `#js` 가 `#json` 을 매칭할 수 있으므로
+          // parseTags 로 정확히 일치하는 항목만 남긴다.
+          return results.pipe(
+            Effect.map((rows) =>
+              rows.filter((commit) => parseTags(commit.message).includes(tag))
+            )
+          )
         },
         getTags(params: UserId) {
           return db

@@ -11,6 +11,7 @@ export type CommitListServerProps = {
   params: {
     date: Params['date']
     tag: Params['tag']
+    q: Params['q']
   }
   children: FC<CommitSchema[]>
 }
@@ -36,6 +37,7 @@ export async function CommitListServer({
           user_id: userId,
           date: params.date ?? fallbackDate,
           tag: params.tag,
+          q: params.q,
         })
 
         return results
