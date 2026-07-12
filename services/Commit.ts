@@ -2,7 +2,8 @@ import { Data, Effect, Option, pipe } from 'effect'
 import { DatabaseLive } from './Sql'
 import { SqliteDrizzle } from '@effect/sql-drizzle/Sqlite'
 import { commits, CommitSchema, UserSelectSchema } from '@/db/schema'
-import { and, desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, like, sql } from 'drizzle-orm'
+import { countTags, parseTags } from '@/lib/tags'
 
 type UserId = {
   user_id: UserSelectSchema['id']
@@ -25,7 +26,37 @@ export class CommitService extends Effect.Service<CommitService>()(
       const db = yield* SqliteDrizzle
 
       return {
-        getList(params: WithUserId<{ date: CommitSchema['created'] }>) {
+        getList(
+          params: WithUserId<{
+            date: CommitSchema['created']
+            tag?: string
+          }>
+        ) {
+          if (params.tag) {
+            const tag = params.tag
+
+            // 태그 필터는 기간에 상관없이 전체에서 조회한다.
+            // LIKE 는 부분 일치라 `#js` 가 `#json` 을 매칭할 수 있으므로
+            // parseTags 로 정확히 일치하는 항목만 남긴다.
+            return db
+              .select()
+              .from(commits)
+              .orderBy(desc(commits.created))
+              .where(
+                and(
+                  eq(commits.user_id, params.user_id),
+                  like(commits.message, `%#${tag}%`)
+                )
+              )
+              .pipe(
+                Effect.map((results) =>
+                  results.filter((commit) =>
+                    parseTags(commit.message).includes(tag)
+                  )
+                )
+              )
+          }
+
           const results = db
             .select()
             .from(commits)
@@ -38,6 +69,17 @@ export class CommitService extends Effect.Service<CommitService>()(
             )
 
           return results
+        },
+        getTags(params: UserId) {
+          return db
+            .select({ message: commits.message })
+            .from(commits)
+            .where(eq(commits.user_id, params.user_id))
+            .pipe(
+              Effect.map((results) =>
+                countTags(results.map((result) => result.message))
+              )
+            )
         },
         getItemById(params: CommitServiceGetItemByIdParams) {
           return db

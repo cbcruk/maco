@@ -2,12 +2,15 @@ import { Link } from 'react-transition-progress/next'
 import { CommitSchema } from '@/db/schema'
 import { CommitDate } from './CommitDate'
 import { Markdown } from './Markdown'
+import { parseTags } from '@/lib/tags'
 
 type CommitItemProps = {
   data: CommitSchema
 }
 
 export function CommitItem({ data: commit }: CommitItemProps) {
+  const tags = parseTags(commit.message)
+
   return (
     <div className="relative flex gap-2 items-start p-4 py-2 border-b border-solid border-gray-900 hover:bg-gray-900 transition-all">
       <Link
@@ -23,6 +26,20 @@ export function CommitItem({ data: commit }: CommitItemProps) {
         <div className="text-sm pointer-events-none [&_a]:pointer-events-auto">
           <Markdown>{commit.message}</Markdown>
         </div>
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 pointer-events-none [&_a]:pointer-events-auto">
+            {tags.map((tag) => (
+              <Link
+                key={tag}
+                prefetch
+                href={{ search: `tag=${encodeURIComponent(tag)}` }}
+                className="text-[10px] text-blue-500 dark:text-blue-400 hover:underline"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        )}
         <div
           className="text-[10px] text-gray-400 pointer-events-none"
           title={commit.updated}

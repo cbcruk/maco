@@ -10,6 +10,7 @@ import { getServerTimezone } from '@/lib/timezone'
 export type CommitListServerProps = {
   params: {
     date: Params['date']
+    tag: Params['tag']
   }
   children: FC<CommitSchema[]>
 }
@@ -34,6 +35,7 @@ export async function CommitListServer({
         const results = yield* commitService.getList({
           user_id: userId,
           date: params.date ?? fallbackDate,
+          tag: params.tag,
         })
 
         return results
