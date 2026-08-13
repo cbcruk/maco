@@ -20,7 +20,6 @@ export function CommitForm({
 }: CommitFormProps) {
   return (
     <fieldset className="flex flex-col gap-2" {...props}>
-      {children}
       <EmojiSelect defaultValue={defaultValues?.emoji ?? undefined} />
       <textarea
         name="message"
@@ -31,10 +30,11 @@ export function CommitForm({
         defaultValue={defaultValues?.message ?? undefined}
       />
       <ErrorMessage errors={errors} />
-      <div className="max-w-fit">
+      <div className="flex items-center gap-3">
         <Button name="intent" value="commit" type="submit">
           저장
         </Button>
+        {children}
       </div>
     </fieldset>
   )

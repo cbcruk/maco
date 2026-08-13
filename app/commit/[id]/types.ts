@@ -5,14 +5,14 @@ type CommitDetailParams = { id: string }
 
 export type CommitDetailProps = { params: Promise<CommitDetailParams> }
 
-export type CommitId = Pick<CommitSchema, 'id'>
+export type NoteId = Pick<CommitSchema, 'note_id'>
 
 export type CommitDetailParamsProps = {
   params: CommitDetailProps['params']
-  children: FC<CommitId>
+  children: FC<NoteId>
 }
 
 export type CommitDetailQueryProps = {
-  params: CommitId
-  children: FC<{ data: CommitSchema }>
+  params: NoteId
+  children: FC<{ data: CommitSchema; userId: string }>
 }

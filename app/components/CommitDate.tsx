@@ -1,14 +1,16 @@
+'use client'
+
+import { useContext } from 'react'
 import { DateFormatter, FormatDateParams, getTimezoneDate } from '@/lib/date'
-import { getServerTimezone } from '@/lib/timezone'
 import { ko } from 'date-fns/locale/ko'
+import { TimezoneContext } from '../context'
 
 type CommitDateProps = FormatDateParams
 
-export async function CommitDate({ date, formatStr }: CommitDateProps) {
-  const timezone = await getServerTimezone()
-  const timezoneDate = getTimezoneDate(new Date(date), timezone)
+export function CommitDate({ date, formatStr }: CommitDateProps) {
+  const { timezone } = useContext(TimezoneContext)!
   const formattedDate = DateFormatter.formatDate({
-    date: timezoneDate,
+    date: getTimezoneDate(new Date(date), timezone),
     formatStr,
     options: {
       locale: ko,

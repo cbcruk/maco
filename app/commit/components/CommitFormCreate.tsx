@@ -1,22 +1,35 @@
 'use client'
 
-import { createCommitAction } from '@/app/commit/actions'
-import { getInitialActionState } from '@/helpers/getInitialActionState'
-import { PropsWithChildren, useActionState } from 'react'
+import { FormEvent } from 'react'
+import { createRevision } from '@/lib/revision'
 import { CommitForm } from './CommitForm'
+import { parseCommitForm, useCommitWriter } from './CommitForm.hooks'
 
-type CommitFormCreateProps = PropsWithChildren
+type CommitFormCreateProps = {
+  userId: string
+}
 
-export function CommitFormCreate({ children }: CommitFormCreateProps) {
-  const [state, formAction, isPending] = useActionState(
-    createCommitAction,
-    getInitialActionState()
-  )
+export function CommitFormCreate({ userId }: CommitFormCreateProps) {
+  const { write, errors, setErrors, isPending } = useCommitWriter()
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const parsed = parseCommitForm(event.currentTarget)
+
+    if (!parsed.ok) {
+      setErrors(parsed.errors)
+
+      return
+    }
+
+    setErrors([])
+    write(() => createRevision({ user_id: userId, ...parsed.value }))
+  }
 
   return (
-    <form action={formAction}>
-      {children}
-      <CommitForm errors={state.errors} disabled={isPending} />
+    <form onSubmit={handleSubmit}>
+      <CommitForm errors={errors} disabled={isPending} />
     </form>
   )
 }

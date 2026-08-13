@@ -1,12 +1,13 @@
+import { Effect, pipe } from 'effect'
 import { CommitFormEdit } from '../components/CommitFormEdit'
-import { Effect, pipe, Schema } from 'effect'
-import { CommitService } from '@/services/Commit'
+import { CommitService, NotFoundError } from '@/services/Commit'
 import {
   CommitDetailQueryProps,
   CommitDetailParamsProps,
   CommitDetailProps,
 } from './types'
 import { NextAuthService } from '@/services/NextAuth'
+import { isUuid } from '@/lib/uuid'
 
 async function CommitDetailQuery({ params, children }: CommitDetailQueryProps) {
   return Effect.gen(function* () {
@@ -14,17 +15,17 @@ async function CommitDetailQuery({ params, children }: CommitDetailQueryProps) {
     const nextAuthService = yield* NextAuthService
 
     const userId = yield* nextAuthService.getUserId()
-    const result = yield* commitService.getItemById({
+    const data = yield* commitService.getItemByNoteId({
       user_id: userId,
-      id: params.id,
+      note_id: params.note_id,
     })
 
-    return result
+    return { data, userId }
   }).pipe(
     Effect.provide(NextAuthService.Default),
     Effect.provide(CommitService.Default),
     Effect.match({
-      onSuccess: (data) => <>{children({ data })}</>,
+      onSuccess: (result) => <>{children(result)}</>,
       onFailure: (error) => <pre>{JSON.stringify(error, null, 2)}</pre>,
     }),
     Effect.runPromise
@@ -33,13 +34,15 @@ async function CommitDetailQuery({ params, children }: CommitDetailQueryProps) {
 
 function CommitDetailParams({ params, children }: CommitDetailParamsProps) {
   return pipe(
-    pipe(
-      Effect.promise(() => params),
-      Effect.flatMap(({ id }) => Schema.decode(Schema.NumberFromString)(id))
+    Effect.promise(() => params),
+    Effect.flatMap(({ id }) =>
+      isUuid(id)
+        ? Effect.succeed(id)
+        : Effect.fail(new NotFoundError({ message: '잘못된 주소입니다.' }))
     ),
     Effect.match({
-      onSuccess: (id) => <>{children({ id })}</>,
-      onFailure: (e) => <pre title={e._tag}>{e.message}</pre>,
+      onSuccess: (note_id) => <>{children({ note_id })}</>,
+      onFailure: (error) => <pre title={error._tag}>{error.message}</pre>,
     }),
     Effect.runPromise
   )
@@ -48,17 +51,10 @@ function CommitDetailParams({ params, children }: CommitDetailParamsProps) {
 async function CommitDetail({ params }: CommitDetailProps) {
   return (
     <CommitDetailParams params={params}>
-      {({ id }) => (
-        <CommitDetailQuery params={{ id }}>
-          {({ data }) => (
-            <CommitFormEdit
-              defaultValues={{
-                emoji: data.emoji,
-                message: data.message,
-              }}
-            >
-              <input type="hidden" name="id" defaultValue={id} />
-            </CommitFormEdit>
+      {({ note_id }) => (
+        <CommitDetailQuery params={{ note_id }}>
+          {({ data, userId }) => (
+            <CommitFormEdit userId={userId} current={data} />
           )}
         </CommitDetailQuery>
       )}

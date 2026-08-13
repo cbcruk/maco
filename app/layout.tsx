@@ -3,6 +3,7 @@ import { Noto_Sans_KR } from 'next/font/google'
 import { SessionProvider } from 'next-auth/react'
 import { ProgressBar, ProgressBarProvider } from 'react-transition-progress'
 import { AppNav } from './components/AppNav'
+import { OutboxSync } from './components/OutboxSync'
 import './globals.css'
 import { getServerTimezone } from '@/lib/timezone'
 
@@ -36,7 +37,10 @@ async function RootLayout({ children }: RootLayoutProps) {
               >
                 <AppNav />
               </div>
-              <div data-part="stacks-row">{children}</div>
+              <div data-part="stacks-row">
+                <OutboxSync />
+                {children}
+              </div>
             </div>
           </SessionProvider>
         </ProgressBarProvider>
