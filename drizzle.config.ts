@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-require('dotenv').config()
+require('dotenv').config({ path: ['.env.local', '.env'] })
 
 import type { Config } from 'drizzle-kit'
 

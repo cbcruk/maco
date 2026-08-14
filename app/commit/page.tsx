@@ -7,17 +7,9 @@ function Commit() {
   return (
     <Session>
       {(session) =>
-        Option.fromNullable(session).pipe(
+        Option.fromNullable(session?.user?.id).pipe(
           Option.match({
-            onSome: (session) => (
-              <CommitFormCreate>
-                <input
-                  type="hidden"
-                  name="user_id"
-                  defaultValue={session.user?.id}
-                />
-              </CommitFormCreate>
-            ),
+            onSome: (userId) => <CommitFormCreate userId={userId} />,
             onNone: () => <SessionFallback />,
           })
         )

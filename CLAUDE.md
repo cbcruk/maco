@@ -35,6 +35,20 @@ This is a Next.js 15 application built with React 19 RC, TypeScript, and Korean 
 - Two main entities: `users` and `commits` with user-commit relationship  
 - Uses Zod schemas for validation (`drizzle-zod` integration)
 - Configured for Turso/LibSQL with auth tokens
+- Migrations live in `drizzle/` (`pnpm db:generate` / `pnpm db:migrate`)
+
+**Write Path — Local-First (see `docs/local-first.md`):**
+- A row in `commits` is one **immutable revision** of a memo, keyed by a content
+  hash the browser computes. `note_id` is the memo's stable identity across edits.
+- Editing appends a revision (`parent_hash` → previous); deleting appends a
+  tombstone (`deleted`). Never `UPDATE` or `DELETE` a row — offline deletes would
+  resurrect on sync, and mutation breaks idempotent push.
+- "Current content" = the revision with the largest `hlc` for a `note_id`.
+- Writes go to an IndexedDB outbox first (`lib/outbox.ts`) and flush to
+  `pushCommitsAction` in the background (`lib/sync.ts`). Reads still come from the
+  server via RSC.
+- The server recomputes the hash with the session's `user_id` and rejects
+  mismatches. Never trust `user_id` from a payload or form field.
 
 **Component Structure:**
 - Server Components for data fetching (`*.server.tsx`)

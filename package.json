@@ -2,11 +2,16 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:migrate-legacy": "node scripts/migrate-legacy-commits.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
