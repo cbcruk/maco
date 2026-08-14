@@ -1,8 +1,8 @@
 import { pushCommitsAction } from '@/app/commit/actions'
 import {
   abandon,
-  dequeue,
-  getOutboxSnapshot,
+  confirm,
+  getUnconfirmed,
   markAttempt,
   OutboxRecord,
   toRecord,
@@ -30,7 +30,7 @@ export function flushOutbox() {
 }
 
 async function push(): Promise<FlushResult> {
-  const pending = getOutboxSnapshot()
+  const pending = getUnconfirmed()
 
   if (pending.length === 0) {
     return IDLE
@@ -66,7 +66,9 @@ async function push(): Promise<FlushResult> {
     }
   }
 
-  await dequeue(result.accepted)
+  // 큐에서 바로 빼지 않는다. 서버 렌더가 갱신되기 전에 사라지면 화면이
+  // 깜빡인다(§ OutboxRecord.confirmed).
+  await confirm(result.accepted)
 
   return {
     pushed: result.accepted.length,

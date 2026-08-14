@@ -6,7 +6,7 @@ import { CommitSchema } from '@/db/schema'
 import { CommitFormReply } from '../commit/components/CommitFormReply'
 import { CommitItem } from './CommitItem'
 import { buildThreads, mergeOutbox } from './CommitList.utils'
-import { useOutbox } from './Outbox.hooks'
+import { useOutbox, useOutboxPrune } from './Outbox.hooks'
 
 type CommitThreadProps = {
   /** 서버가 준 스레드 전체 (뿌리 + 답글의 최신 리비전) */
@@ -18,6 +18,8 @@ type CommitThreadProps = {
 export function CommitThread({ list, rootNoteId, userId }: CommitThreadProps) {
   const outbox = useOutbox()
   const [targetNoteId, setTargetNoteId] = useState(rootNoteId)
+
+  useOutboxPrune(list)
 
   const thread = useMemo(
     () =>

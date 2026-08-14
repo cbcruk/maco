@@ -10,6 +10,15 @@ import { CommitRecord } from '@/db/schema'
 export type OutboxRecord = CommitRecord & {
   attempts: number
   error: string | null
+  /**
+   * 서버가 받아들였지만 아직 화면에서 빼지 않은 상태.
+   *
+   * push 성공 즉시 큐에서 빼면 서버 렌더가 갱신되기 전에 항목이 사라져
+   * "저장 → 나타남 → 사라짐 → 다시 나타남"으로 깜빡인다. 그래서 받아들여진
+   * 뒤에도 화면에는 계속 겹쳐 두고, 새 서버 목록이 도착한 뒤에 뺀다
+   * (`pruneConfirmed`). 다시 보내지는 않는다.
+   */
+  confirmed: boolean
 }
 
 /** 큐 관리용 필드를 떼고 서버로 보낼 리비전만 남긴다 */
@@ -113,13 +122,62 @@ export async function loadOutbox() {
 }
 
 export async function enqueue(record: CommitRecord) {
-  const entry: OutboxRecord = { ...record, attempts: 0, error: null }
+  const entry: OutboxRecord = {
+    ...record,
+    attempts: 0,
+    error: null,
+    confirmed: false,
+  }
 
   await withStore('readwrite', (store) => store.put(entry))
 
   publish([...snapshot.filter((item) => item.hash !== entry.hash), entry])
 
   return entry
+}
+
+/** 아직 서버로 보내지 않은 것들. 이미 받아들여진 것을 또 보낼 이유가 없다 */
+export function getUnconfirmed() {
+  return snapshot.filter((item) => !item.confirmed)
+}
+
+/** 서버가 받아들였음을 기록한다. 화면에서 빼는 것은 `pruneConfirmed`가 한다 */
+export async function confirm(hashes: string[]) {
+  if (hashes.length === 0) {
+    return
+  }
+
+  const accepted = new Set(hashes)
+  const updated = snapshot.map((item) =>
+    accepted.has(item.hash) ? { ...item, confirmed: true, error: null } : item
+  )
+
+  await withStore('readwrite', (store) => {
+    updated
+      .filter((item) => accepted.has(item.hash))
+      .forEach((item) => store.put(item))
+
+    return null
+  })
+
+  publish(updated)
+}
+
+/**
+ * 새 서버 목록이 도착한 뒤 호출한다. 그 렌더는 push 이후에 일어난 것이므로
+ * 받아들여진 항목은 이제 서버 쪽에 반영돼 있다 — 겹쳐 둘 이유가 없다.
+ *
+ * 목록에 그 항목이 들어 있는지로 판단하지 않는 것은 톰스톤 때문이다.
+ * 삭제 리비전은 어떤 목록에도 나타나지 않으므로 영영 확인되지 않는다.
+ */
+export async function pruneConfirmed() {
+  const stale = snapshot.filter((item) => item.confirmed)
+
+  if (stale.length === 0) {
+    return
+  }
+
+  await dequeue(stale.map((item) => item.hash))
 }
 
 export async function dequeue(hashes: string[]) {

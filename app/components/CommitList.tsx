@@ -5,7 +5,7 @@ import { Match } from 'effect'
 import { CommitSchema } from '@/db/schema'
 import { CommitListGroup } from './CommitListGroup'
 import { CommitThreadItem } from './CommitThreadItem'
-import { useOutbox } from './Outbox.hooks'
+import { useOutbox, useOutboxPrune } from './Outbox.hooks'
 import { buildThreads, groupThreadsByDay, mergeOutbox } from './CommitList.utils'
 import { TimezoneContext } from '../context'
 
@@ -25,6 +25,8 @@ function CommitListEmpty() {
 export function CommitList({ list }: CommitListProps) {
   const { timezone } = useContext(TimezoneContext)
   const outbox = useOutbox()
+
+  useOutboxPrune(list)
 
   const groups = useMemo(
     () =>
