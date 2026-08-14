@@ -11,8 +11,11 @@
  * 새로 만드는 데이터베이스라면 이 스크립트가 필요 없다 — `pnpm db:migrate`만 돌리면 된다.
  */
 // Node가 직접 실행하므로(타입 스트리핑) 상대 경로에 확장자를 붙인다.
-import 'dotenv/config'
+import { config } from 'dotenv'
 import { createClient } from '@libsql/client'
+
+// Next.js와 달리 dotenv는 `.env`만 읽는다. 자격증명은 보통 `.env.local`에 있다.
+config({ path: ['.env.local', '.env'] })
 import { commitHash } from '../lib/hash.ts'
 import { encodeHlc } from '../lib/hlc.ts'
 import { uuidv7 } from '../lib/uuid.ts'
