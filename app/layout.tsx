@@ -6,6 +6,7 @@ import { AppNav } from './components/AppNav'
 import { OutboxSync } from './components/OutboxSync'
 import './globals.css'
 import { getServerTimezone } from '@/lib/timezone'
+import { TimezoneProvider } from './context'
 
 export const metadata: Metadata = {
   title: 'maco',
@@ -22,26 +23,28 @@ type RootLayoutProps = Readonly<{
 }>
 
 async function RootLayout({ children }: RootLayoutProps) {
-  getServerTimezone()
+  const timezone = await getServerTimezone()
 
   return (
     <html lang="ko">
       <body className={`${notoSans.className} antialiased text-xs`}>
         <ProgressBarProvider>
           <SessionProvider>
-            <ProgressBar className="fixed z-50 h-[2px] shadow-lg shadow-sky-500/20 bg-blue-600 top-0" />
-            <div data-scope="stacks" className="flex flex-col">
-              <div
-                data-part="stacks-row"
-                className="sticky top-0 z-40 bg-zinc-950"
-              >
-                <AppNav />
+            <TimezoneProvider value={{ timezone }}>
+              <ProgressBar className="fixed z-50 h-[2px] shadow-lg shadow-sky-500/20 bg-blue-600 top-0" />
+              <div data-scope="stacks" className="flex flex-col">
+                <div
+                  data-part="stacks-row"
+                  className="sticky top-0 z-40 bg-zinc-950"
+                >
+                  <AppNav />
+                </div>
+                <div data-part="stacks-row">
+                  <OutboxSync />
+                  {children}
+                </div>
               </div>
-              <div data-part="stacks-row">
-                <OutboxSync />
-                {children}
-              </div>
-            </div>
+            </TimezoneProvider>
           </SessionProvider>
         </ProgressBarProvider>
       </body>

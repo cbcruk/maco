@@ -8,7 +8,7 @@ import { TimezoneContext } from '../context'
 type CommitDateProps = FormatDateParams
 
 export function CommitDate({ date, formatStr }: CommitDateProps) {
-  const { timezone } = useContext(TimezoneContext)!
+  const { timezone } = useContext(TimezoneContext)
   const formattedDate = DateFormatter.formatDate({
     date: getTimezoneDate(new Date(date), timezone),
     formatStr,

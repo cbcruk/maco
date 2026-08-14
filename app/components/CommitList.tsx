@@ -23,7 +23,7 @@ function CommitListEmpty() {
 }
 
 export function CommitList({ list }: CommitListProps) {
-  const { timezone } = useContext(TimezoneContext)!
+  const { timezone } = useContext(TimezoneContext)
   const outbox = useOutbox()
 
   const groups = useMemo(

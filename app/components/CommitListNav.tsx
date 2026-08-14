@@ -33,7 +33,7 @@ type CommitListNavContainerProps = {
 }
 
 function CommitListNavContainer({ children }: CommitListNavContainerProps) {
-  const { timezone } = useContext(TimezoneContext)!
+  const { timezone } = useContext(TimezoneContext)
   const { currentMonth, prevMonth, nextMonth } = useCommitListNav(timezone)
 
   return <>{children({ currentMonth, prevMonth, nextMonth })}</>
