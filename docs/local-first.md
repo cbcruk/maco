@@ -385,11 +385,29 @@ git 문서(제품 기능)와 이 문서(동기화)가 **공통으로 요구하�
 기존 데이터가 있으면 이관이 필요하다.
 
 ```bash
-pnpm db:migrate-legacy --dry   # 계획 확인
-pnpm db:migrate-legacy         # 실제 이관
+pnpm db:migrate-legacy -- --dry   # 계획 확인
+pnpm db:migrate-legacy            # 실제 이관
 ```
 
 옛 테이블은 `commits_legacy`로 남으므로 확인 후 직접 지운다.
+스크립트는 Node 22의 타입 스트리핑으로 그대로 실행되므로 별도 실행기가 필요 없다.
+앱과 같은 `lib/hash.ts`를 쓰기 때문에 이관된 해시가 앱이 계산하는 값과 일치한다.
+
+### 주의 — pnpm 버전
+
+`package.json`의 `resolutions`는 `@libsql/client`를 0.15.3으로 고정한다.
+이게 풀리면 `@effect/sql-libsql`이 0.12.0을 끌어오고, 그 버전은 네이티브 `libsql`을
+참조해 `next build`(webpack)가 깨진다.
+
+문제는 **`resolutions`를 pnpm 9까지만 읽는다**는 점이다. pnpm 10+로 설치하면
+이 필드가 무시되어 lockfile의 `overrides:` 항목이 사라지고, 배포(pnpm 9)에서는
+`ERR_PNPM_LOCKFILE_CONFIG_MISMATCH`로 설치 자체가 실패한다.
+
+**lockfile은 pnpm 9로만 갱신할 것.**
+
+```bash
+corepack pnpm@9 install
+```
 
 ### 남은 한계
 

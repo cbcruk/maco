@@ -10,7 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:migrate-legacy": "tsx scripts/migrate-legacy-commits.ts"
+    "db:migrate-legacy": "node scripts/migrate-legacy-commits.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
@@ -48,7 +48,6 @@
     "eslint-config-next": "15.0.3",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "tsx": "^4.23.12",
     "typescript": "^5"
   },
   "resolutions": {

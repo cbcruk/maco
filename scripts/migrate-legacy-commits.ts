@@ -2,17 +2,20 @@
  * 기존 `commits` 테이블(서버 autoincrement id + 덮어쓰기 수정)을
  * 리비전 모델로 옮긴다.
  *
- *   pnpm db:migrate-legacy          # 실제 이관
- *   pnpm db:migrate-legacy --dry    # 계획만 출력
+ *   pnpm db:migrate-legacy               # 실제 이관
+ *   pnpm db:migrate-legacy -- --dry      # 계획만 출력
+ *
+ * Node 22의 타입 스트리핑으로 그대로 실행된다(별도 실행기 불필요).
  *
  * 옛 테이블은 `commits_legacy`로 남겨 둔다. 확인 후 직접 DROP할 것.
  * 새로 만드는 데이터베이스라면 이 스크립트가 필요 없다 — `pnpm db:migrate`만 돌리면 된다.
  */
+// Node가 직접 실행하므로(타입 스트리핑) 상대 경로에 확장자를 붙인다.
 import 'dotenv/config'
 import { createClient } from '@libsql/client'
-import { commitHash } from '../lib/hash'
-import { encodeHlc } from '../lib/hlc'
-import { uuidv7 } from '../lib/uuid'
+import { commitHash } from '../lib/hash.ts'
+import { encodeHlc } from '../lib/hlc.ts'
+import { uuidv7 } from '../lib/uuid.ts'
 
 const LEGACY_DEVICE_ID = 'legacy'
 
