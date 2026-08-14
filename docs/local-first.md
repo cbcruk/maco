@@ -393,21 +393,39 @@ pnpm db:migrate-legacy            # 실제 이관
 스크립트는 Node 22의 타입 스트리핑으로 그대로 실행되므로 별도 실행기가 필요 없다.
 앱과 같은 `lib/hash.ts`를 쓰기 때문에 이관된 해시가 앱이 계산하는 값과 일치한다.
 
-### 주의 — pnpm 버전
+### 주의 — `resolutions` 핀과 pnpm 버전
 
 `package.json`의 `resolutions`는 `@libsql/client`를 0.15.3으로 고정한다.
-이게 풀리면 `@effect/sql-libsql`이 0.12.0을 끌어오고, 그 버전은 네이티브 `libsql`을
-참조해 `next build`(webpack)가 깨진다.
+장식이 아니라 빌드를 세우는 핀이다.
 
-문제는 **`resolutions`를 pnpm 9까지만 읽는다**는 점이다. pnpm 10+로 설치하면
-이 필드가 무시되어 lockfile의 `overrides:` 항목이 사라지고, 배포(pnpm 9)에서는
-`ERR_PNPM_LOCKFILE_CONFIG_MISMATCH`로 설치 자체가 실패한다.
+| | 요구하는 `libsql` | webpack |
+| --- | --- | --- |
+| `@libsql/client@0.12.0` | `^0.4.4` | **깨짐** — `libsql@0.4.x`가 `@libsql/*` 전체에 동적 require를 걸어 README/LICENSE까지 파싱하려 든다 |
+| `@libsql/client@0.15.3` | `^0.5.5` | 정상 |
 
-**lockfile은 pnpm 9로만 갱신할 것.**
+`@effect/sql-libsql`이 `@libsql/client: ^0.12.0`을 의존하므로, 핀이 풀리면
+0.12.0이 함께 설치되고 `next build`가 깨진다.
 
-```bash
-corepack pnpm@9 install
-```
+**핀은 아직 걷어낼 수 없다.** 확인한 내용:
+
+- 안정 버전 `@effect/sql-libsql@0.42.0`까지 전부 `^0.12.0`을 요구한다.
+  버전만 올려서는 해결되지 않는다.
+- `@effect/sql-libsql@4.0.0-rc`는 `@libsql/client@^0.17.4`로 올라갔지만
+  `effect@^4.0.0-rc`를 요구한다 — Effect 생태계 전체를 RC로 옮겨야 한다.
+- `next.config.ts`의 `serverExternalPackages`로 우회되지 않는다(시험함).
+- 걷어내는 유일한 길은 `@effect/sql-libsql`(및 `@effect/sql`,
+  `@effect/sql-drizzle`)을 버리고 `drizzle-orm/libsql`을 직접 Effect 서비스로
+  감싸는 것이다. `services/` 3개 파일 수준의 작업이고 UI는 손대지 않는다.
+
+**핀이 놓인 `resolutions` 필드는 pnpm 9까지만 읽힌다.** pnpm 10+로 설치하면
+필드가 무시되어 lockfile의 `overrides:` 항목이 사라지고, 배포(pnpm 9)에서는
+`ERR_PNPM_LOCKFILE_CONFIG_MISMATCH`로 설치 자체가 실패한다. pnpm 10+는 이 설정을
+`pnpm-workspace.yaml`에서 읽는데, 그 파일을 두면 이번엔 pnpm 9가
+`packages field missing`으로 거부한다 — 두 버전을 동시에 만족시킬 수 없다.
+
+그래서 `packageManager: pnpm@9.15.9`로 버전을 고정했다. corepack이 켜져 있으면
+`pnpm install`을 쳐도 9.15.9로 실행되어 lockfile이 훼손되지 않는다.
+corepack 없이 pnpm 10+를 직접 쓴다면 lockfile을 커밋하지 말 것.
 
 ### 남은 한계
 
