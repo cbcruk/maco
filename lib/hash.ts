@@ -10,6 +10,10 @@ export type CommitHashInput = {
   emoji: string
   message: string
   deleted: boolean
+  reply_to_note_id?: string | null
+  reply_to_hash?: string | null
+  root_note_id?: string | null
+  depth?: number | null
 }
 
 /**
@@ -22,8 +26,18 @@ export type CommitHashInput = {
  *
  * `crypto.subtle`은 브라우저와 Node 양쪽에 있으므로 클라이언트가 계산한 해시를
  * 서버가 같은 코드로 다시 계산해 검증할 수 있다.
+ *
+ * 스레드 필드(`reply`)는 **값이 있을 때만 줄을 넣는다.** 뿌리 메모는 그 줄이
+ * 빠지므로 스레드 도입 이전과 정확히 같은 해시가 나온다 — 이미 저장된
+ * 리비전들이 그대로 유효하다.
  */
 export async function commitHash(input: CommitHashInput) {
+  const reply = input.reply_to_note_id
+    ? `reply ${input.reply_to_note_id} ${input.reply_to_hash ?? ''} ${
+        input.root_note_id ?? ''
+      } ${input.depth ?? 0}\n`
+    : ''
+
   const body =
     `note ${input.note_id}\n` +
     `parent ${input.parent_hash ?? ''}\n` +
@@ -33,6 +47,7 @@ export async function commitHash(input: CommitHashInput) {
     `created ${input.created}\n` +
     `deleted ${input.deleted ? 1 : 0}\n` +
     `emoji ${input.emoji}\n` +
+    reply +
     `\n${input.message}\n`
 
   const content = encoder.encode(body)

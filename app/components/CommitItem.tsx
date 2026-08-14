@@ -1,15 +1,18 @@
 'use client'
 
 import { Link } from 'react-transition-progress/next'
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, ReactNode } from 'react'
 import { CommitDate } from './CommitDate'
 import { CommitView } from './CommitList.types'
 
 type CommitItemProps = {
   data: CommitView
+  /** 없으면 링크로 감싸지 않는다 (스레드 뷰처럼 이미 그 자리에 있는 경우) */
+  href?: string | null
+  actions?: ReactNode
 }
 
-function CommitItemBody({ data: commit }: CommitItemProps) {
+function CommitItemBody({ data: commit }: { data: CommitView }) {
   return (
     <>
       <span className="text-2xl">{commit.emoji}</span>
@@ -36,24 +39,38 @@ function CommitItemBody({ data: commit }: CommitItemProps) {
 const ITEM_CLASS_NAME =
   'flex gap-2 items-start p-4 py-2 border-b border-solid border-gray-900'
 
-function CommitItemPending({ children }: PropsWithChildren) {
-  // 아직 서버에 없으므로 상세 화면으로 갈 수 없다.
-  return <div className={`${ITEM_CLASS_NAME} opacity-60`}>{children}</div>
+function CommitItemStatic({ children }: PropsWithChildren) {
+  return <div className={ITEM_CLASS_NAME}>{children}</div>
 }
 
-export function CommitItem({ data }: CommitItemProps) {
-  if (data.pending) {
+export function CommitItem({ data, href, actions }: CommitItemProps) {
+  const target = href === undefined ? `/commit/${data.note_id}` : href
+
+  // 아직 서버에 없으면 상세로 갈 수 없다.
+  if (data.pending || !target) {
     return (
-      <CommitItemPending>
+      <div className={data.pending ? 'opacity-60' : undefined}>
+        <CommitItemStatic>
+          <CommitItemBody data={data} />
+          {actions}
+        </CommitItemStatic>
+      </div>
+    )
+  }
+
+  if (actions) {
+    return (
+      <CommitItemStatic>
         <CommitItemBody data={data} />
-      </CommitItemPending>
+        {actions}
+      </CommitItemStatic>
     )
   }
 
   return (
     <Link
       prefetch
-      href={`/commit/${data.note_id}`}
+      href={target}
       className={`${ITEM_CLASS_NAME} hover:bg-gray-900 transition-all`}
     >
       <CommitItemBody data={data} />

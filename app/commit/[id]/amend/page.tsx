@@ -1,34 +1,26 @@
 import { Effect, pipe } from 'effect'
 import { CommitService, NotFoundError } from '@/services/Commit'
 import { NextAuthService } from '@/services/NextAuth'
-import { CommitThread } from '@/app/components/CommitThread'
+import { CommitFormEdit } from '../../components/CommitFormEdit'
 import { isUuid } from '@/lib/uuid'
 import {
   CommitDetailParamsProps,
   CommitDetailProps,
-  CommitThreadQueryProps,
-} from './types'
+  CommitDetailQueryProps,
+} from '../types'
 
-/**
- * 메모를 열었을 때 나와야 하는 것은 수정 폼이 아니라 그 메모와 거기서 자란
- * 것들이다. 답글을 열어도 뿌리부터 스레드 전체를 보여준다.
- */
-async function CommitThreadQuery({ params, children }: CommitThreadQueryProps) {
+async function CommitAmendQuery({ params, children }: CommitDetailQueryProps) {
   return Effect.gen(function* () {
     const commitService = yield* CommitService
     const nextAuthService = yield* NextAuthService
 
     const userId = yield* nextAuthService.getUserId()
-    const item = yield* commitService.getItemByNoteId({
+    const data = yield* commitService.getItemByNoteId({
       user_id: userId,
       note_id: params.note_id,
     })
-    const thread = yield* commitService.getThread({
-      user_id: userId,
-      root_note_id: item.root_note_id,
-    })
 
-    return { thread, rootNoteId: item.root_note_id, userId }
+    return { data, userId }
   }).pipe(
     Effect.provide(NextAuthService.Default),
     Effect.provide(CommitService.Default),
@@ -44,7 +36,7 @@ async function CommitThreadQuery({ params, children }: CommitThreadQueryProps) {
   )
 }
 
-function CommitDetailParams({ params, children }: CommitDetailParamsProps) {
+function CommitAmendParams({ params, children }: CommitDetailParamsProps) {
   return pipe(
     Effect.promise(() => params),
     Effect.flatMap(({ id }) =>
@@ -60,22 +52,18 @@ function CommitDetailParams({ params, children }: CommitDetailParamsProps) {
   )
 }
 
-async function CommitDetail({ params }: CommitDetailProps) {
+async function CommitAmend({ params }: CommitDetailProps) {
   return (
-    <CommitDetailParams params={params}>
+    <CommitAmendParams params={params}>
       {({ note_id }) => (
-        <CommitThreadQuery params={{ note_id }}>
-          {({ thread, rootNoteId, userId }) => (
-            <CommitThread
-              list={thread}
-              rootNoteId={rootNoteId}
-              userId={userId}
-            />
+        <CommitAmendQuery params={{ note_id }}>
+          {({ data, userId }) => (
+            <CommitFormEdit userId={userId} current={data} />
           )}
-        </CommitThreadQuery>
+        </CommitAmendQuery>
       )}
-    </CommitDetailParams>
+    </CommitAmendParams>
   )
 }
 
-export default CommitDetail
+export default CommitAmend

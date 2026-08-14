@@ -40,6 +40,20 @@ export const commits = sqliteTable(
     emoji: text('emoji').notNull(),
     deleted: integer('deleted', { mode: 'boolean' }).notNull().default(false),
 
+    /**
+     * 이어 쓰는 대상 메모. 뿌리면 null.
+     *
+     * 리비전(`hash`)이 아니라 메모(`note_id`)를 가리키는 것이 중요하다.
+     * 답글이 특정 리비전에 매달리면 원본을 수정하는 순간 "지금의 원본"에서
+     * 떨어져 나간다.
+     */
+    reply_to_note_id: text('reply_to_note_id'),
+    /** 이어 쓸 당시 그 메모의 리비전. 구조가 아니라 출처 기록용 */
+    reply_to_hash: text('reply_to_hash'),
+    /** 스레드 뿌리. 뿌리 자신이면 자기 `note_id` */
+    root_note_id: text('root_note_id').notNull(),
+    depth: integer('depth').notNull().default(0),
+
     user_id: text('user_id')
       .notNull()
       .references(() => users.id),
@@ -52,6 +66,8 @@ export const commits = sqliteTable(
   (table) => [
     index('commits_note_hlc').on(table.note_id, table.hlc),
     index('commits_user_created').on(table.user_id, table.created),
+    index('commits_root').on(table.root_note_id, table.created),
+    index('commits_reply_to').on(table.reply_to_note_id),
   ]
 )
 

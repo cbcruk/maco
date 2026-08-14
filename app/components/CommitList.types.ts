@@ -8,3 +8,9 @@ export type CommitView = CommitRecord & {
   /** 아직 서버에 반영되지 않은 리비전인가 */
   pending: boolean
 }
+
+/** 뿌리 하나와 거기 매달린 답글들. 답글은 작성 순서(오름차순) */
+export type CommitThread = {
+  root: CommitView
+  replies: CommitView[]
+}
