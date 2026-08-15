@@ -1,9 +1,11 @@
+import { Suspense } from 'react'
 import { Option } from 'effect'
 import { Session } from '../components/Session'
 import { CommitFormCreate } from './components/CommitFormCreate'
 import { SessionFallback } from '../components/SessionFallback'
+import { CommitFormSkeleton } from '../components/CommitSkeleton'
 
-function Commit() {
+function CommitForm() {
   return (
     <Session>
       {(session) =>
@@ -15,6 +17,14 @@ function Commit() {
         )
       }
     </Session>
+  )
+}
+
+function Commit() {
+  return (
+    <Suspense fallback={<CommitFormSkeleton />}>
+      <CommitForm />
+    </Suspense>
   )
 }
 

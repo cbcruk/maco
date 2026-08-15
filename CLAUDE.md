@@ -11,11 +11,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Tech Stack & Architecture
 
-This is a Next.js 15 application built with React 19 RC, TypeScript, and Korean localization (Noto Sans KR). The architecture follows a modular service-oriented pattern using Effect.
+This is a Next.js 16 application built with React 19, TypeScript, and Korean localization (Noto Sans KR). The architecture follows a modular service-oriented pattern using Effect.
 
 ### Core Technologies
-- **Next.js 15** with App Router and Server Components
-- **React 19 RC** with Suspense patterns
+- **Next.js 16** with App Router and Server Components (Turbopack by default)
+- **React 19** with Suspense boundaries and streaming loading shells
 - **Effect** for functional programming and dependency injection
 - **Drizzle ORM** with Turso (LibSQL) database
 - **NextAuth v5 Beta** for GitHub OAuth authentication
