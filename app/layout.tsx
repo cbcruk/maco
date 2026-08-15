@@ -5,7 +5,6 @@ import { ProgressBar, ProgressBarProvider } from 'react-transition-progress'
 import { AppNav } from './components/AppNav'
 import { OutboxSync } from './components/OutboxSync'
 import './globals.css'
-import { getServerTimezone } from '@/lib/timezone'
 import { TimezoneProvider } from './context'
 
 export const metadata: Metadata = {
@@ -22,15 +21,13 @@ type RootLayoutProps = Readonly<{
   children: React.ReactNode
 }>
 
-async function RootLayout({ children }: RootLayoutProps) {
-  const timezone = await getServerTimezone()
-
+function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko">
       <body className={`${notoSans.className} antialiased text-xs`}>
         <ProgressBarProvider>
           <SessionProvider>
-            <TimezoneProvider value={{ timezone }}>
+            <TimezoneProvider>
               <ProgressBar className="fixed z-50 h-[2px] shadow-lg shadow-sky-500/20 bg-blue-600 top-0" />
               <div data-scope="stacks" className="flex flex-col">
                 <div

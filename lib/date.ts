@@ -31,6 +31,11 @@ export class DateFormatter {
 
 export type TZName = TZDate['timeZone']
 
+export const DEFAULT_TIMEZONE = 'Asia/Seoul'
+
+/** 브라우저가 자기 타임존을 서버에 알려주는 통로 */
+export const TIMEZONE_COOKIE = 'user-timezone'
+
 /**
  * `yyyy-MM` 한 달을 사용자 타임존 기준으로 잘라 UTC 구간으로 바꾼다.
  *
