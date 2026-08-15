@@ -3,7 +3,6 @@ import { Option } from 'effect'
 import { Session } from '../components/Session'
 import { CommitFormCreate } from './components/CommitFormCreate'
 import { SessionFallback } from '../components/SessionFallback'
-import { CommitFormSkeleton } from '../components/CommitSkeleton'
 
 function CommitForm() {
   return (
@@ -22,7 +21,7 @@ function CommitForm() {
 
 function Commit() {
   return (
-    <Suspense fallback={<CommitFormSkeleton />}>
+    <Suspense fallback={null}>
       <CommitForm />
     </Suspense>
   )

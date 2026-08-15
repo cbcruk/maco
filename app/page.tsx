@@ -3,10 +3,6 @@ import { CommitList } from './components/CommitList'
 import { Session } from './components/Session'
 import { CommitListServer } from './components/CommitList.server'
 import { CommitListNav } from './components/CommitListNav'
-import {
-  CommitListNavFallback,
-  CommitListSkeleton,
-} from './components/CommitSkeleton'
 import { HomeProps } from './types'
 
 /**
@@ -30,14 +26,12 @@ async function HomeList({ searchParams }: HomeProps) {
 function Home({ searchParams }: HomeProps) {
   return (
     <>
-      {/* 월 이동은 클라이언트에서 URL만 읽으므로 기다릴 것이 없다.
-          목록보다 먼저 그려서 화면이 즉시 반응하게 한다.
-          `useSearchParams()`를 쓰므로 자체 경계가 필요하다 — 없으면 서버에서
-          렌더되지 않고 클라이언트로 넘어간다. */}
-      <Suspense fallback={<CommitListNavFallback />}>
+      {/* `useSearchParams()`를 쓰는 컴포넌트는 자체 경계가 필요하다.
+          없으면 서버에서 렌더되지 않고 클라이언트로 넘어간다. */}
+      <Suspense fallback={null}>
         <CommitListNav />
       </Suspense>
-      <Suspense fallback={<CommitListSkeleton />}>
+      <Suspense fallback={null}>
         <HomeList searchParams={searchParams} />
       </Suspense>
     </>
