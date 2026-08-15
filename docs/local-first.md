@@ -396,23 +396,26 @@ pnpm db:migrate-legacy            # 실제 이관
 ### 주의 — `resolutions` 핀과 pnpm 버전
 
 `package.json`의 `resolutions`는 `@libsql/client`를 0.15.3으로 고정한다.
-장식이 아니라 빌드를 세우는 핀이다.
-
-| | 요구하는 `libsql` | webpack |
-| --- | --- | --- |
-| `@libsql/client@0.12.0` | `^0.4.4` | **깨짐** — `libsql@0.4.x`가 `@libsql/*` 전체에 동적 require를 걸어 README/LICENSE까지 파싱하려 든다 |
-| `@libsql/client@0.15.3` | `^0.5.5` | 정상 |
 
 `@effect/sql-libsql`이 `@libsql/client: ^0.12.0`을 의존하므로, 핀이 풀리면
-0.12.0이 함께 설치되고 `next build`가 깨진다.
+0.12.0이 함께 설치되고 **서버 런타임이 그 옛 버전을 쓰게 된다.**
 
-**핀은 아직 걷어낼 수 없다.** 확인한 내용:
+> **Next.js 16 이후 달라진 점 (2026-08-15).** 예전에는 핀이 풀리면
+> `next build`가 깨졌다. `@libsql/client@0.12.0`이 끌어오는 `libsql@0.4.x`가
+> `@libsql/*` 전체에 동적 require를 걸어 webpack이 README/LICENSE까지 파싱하려
+> 들었기 때문이다. Next.js 16 부터 Turbopack 이 기본 빌더라 **이 실패는
+> 사라졌다**(시험함 — 핀 없이도 빌드 성공).
+>
+> 그래서 핀의 성격이 바뀌었다. 빌드를 세우는 장치가 아니라 **런타임 버전을
+> 고정하는 장치**다. 그리고 이제 핀이 풀려도 빌드가 조용히 성공하므로,
+> **실수를 알아채기가 더 어려워졌다.** 아래 pnpm 버전 주의가 예전보다 중요하다.
+
+**핀을 걷어내려면 여전히 의존성 구조를 바꿔야 한다.** 확인한 내용:
 
 - 안정 버전 `@effect/sql-libsql@0.42.0`까지 전부 `^0.12.0`을 요구한다.
   버전만 올려서는 해결되지 않는다.
 - `@effect/sql-libsql@4.0.0-rc`는 `@libsql/client@^0.17.4`로 올라갔지만
   `effect@^4.0.0-rc`를 요구한다 — Effect 생태계 전체를 RC로 옮겨야 한다.
-- `next.config.ts`의 `serverExternalPackages`로 우회되지 않는다(시험함).
 - 걷어내는 유일한 길은 `@effect/sql-libsql`(및 `@effect/sql`,
   `@effect/sql-drizzle`)을 버리고 `drizzle-orm/libsql`을 직접 Effect 서비스로
   감싸는 것이다. `services/` 3개 파일 수준의 작업이고 UI는 손대지 않는다.
