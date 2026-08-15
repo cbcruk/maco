@@ -17,6 +17,7 @@ type CommitFormEditProps = {
  */
 export function CommitFormEdit({ userId, current }: CommitFormEditProps) {
   const { write, errors, setErrors, isPending } = useCommitWriter()
+  const threadPath = `/commit/${current.root_note_id}`
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -30,7 +31,10 @@ export function CommitFormEdit({ userId, current }: CommitFormEditProps) {
     }
 
     setErrors([])
-    write(() => amendRevision({ user_id: userId, current, ...parsed.value }))
+    write(
+      () => amendRevision({ user_id: userId, current, ...parsed.value }),
+      threadPath
+    )
   }
 
   function handleDelete() {
@@ -38,7 +42,11 @@ export function CommitFormEdit({ userId, current }: CommitFormEditProps) {
       return
     }
 
-    write(() => tombstoneRevision({ user_id: userId, current }))
+    // 뿌리를 지우면 스레드가 통째로 사라지므로 목록으로 돌아간다.
+    write(
+      () => tombstoneRevision({ user_id: userId, current }),
+      current.reply_to_note_id ? threadPath : '/'
+    )
   }
 
   return (

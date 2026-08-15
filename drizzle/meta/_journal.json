@@ -8,6 +8,13 @@
       "when": 1786612365169,
       "tag": "0000_unusual_santa_claus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1786716114803,
+      "tag": "0001_crazy_amphibian",
+      "breakpoints": true
     }
   ]
 }

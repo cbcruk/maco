@@ -11,6 +11,8 @@
  * 새로 만드는 데이터베이스라면 이 스크립트가 필요 없다 — `pnpm db:migrate`만 돌리면 된다.
  */
 // Node가 직접 실행하므로(타입 스트리핑) 상대 경로에 확장자를 붙인다.
+import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { config } from 'dotenv'
 import { createClient } from '@libsql/client'
 
@@ -57,6 +59,52 @@ const client = createClient({
 
 const dryRun = process.argv.includes('--dry')
 
+/**
+ * 이 스크립트는 drizzle을 거치지 않고 테이블을 직접 만든다. 그대로 두면
+ * drizzle은 베이스라인이 적용된 사실을 모르고, 다음 `pnpm db:migrate`가
+ * 이미 있는 테이블에 CREATE TABLE을 시도하다 실패한다.
+ *
+ * 그래서 drizzle이 쓰는 것과 같은 형식으로 적용 기록을 남긴다
+ * (`drizzle-orm/migrator`의 `readMigrationFiles` — 해시는 마이그레이션
+ * 파일 원문의 sha256, `created_at`은 journal의 `when`).
+ */
+async function stampBaseline() {
+  await client.execute(
+    `CREATE TABLE IF NOT EXISTS __drizzle_migrations (
+      id SERIAL PRIMARY KEY,
+      hash text NOT NULL,
+      created_at numeric
+    )`
+  )
+
+  const journal = JSON.parse(
+    readFileSync(new URL('../drizzle/meta/_journal.json', import.meta.url), 'utf8')
+  ) as { entries: { tag: string; when: number }[] }
+
+  for (const entry of journal.entries) {
+    const query = readFileSync(
+      new URL(`../drizzle/${entry.tag}.sql`, import.meta.url),
+      'utf8'
+    )
+    const hash = createHash('sha256').update(query).digest('hex')
+    const existing = await client.execute({
+      sql: 'SELECT 1 FROM __drizzle_migrations WHERE hash = ?',
+      args: [hash],
+    })
+
+    if (existing.rows.length > 0) {
+      continue
+    }
+
+    await client.execute({
+      sql: 'INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)',
+      args: [hash, entry.when],
+    })
+
+    console.log('마이그레이션 기록 추가:', entry.tag)
+  }
+}
+
 async function hasColumn(table: string, column: string) {
   const result = await client.execute(`PRAGMA table_info(${table})`)
 
@@ -65,7 +113,12 @@ async function hasColumn(table: string, column: string) {
 
 async function main() {
   if (!(await hasColumn('commits', 'id'))) {
-    console.log('이미 리비전 모델입니다. 할 일이 없습니다.')
+    console.log('이미 리비전 모델입니다.')
+
+    // 기록이 빠져 있으면 채운다(이 스크립트를 이미 돌린 데이터베이스 복구용).
+    if (!dryRun) {
+      await stampBaseline()
+    }
 
     return
   }
@@ -142,6 +195,8 @@ async function main() {
   console.log(
     `완료. ${revisions.length}개를 옮겼습니다. 확인 후 commits_legacy를 지우세요.`
   )
+
+  await stampBaseline()
 }
 
 main()

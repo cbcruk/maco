@@ -16,3 +16,8 @@ export type CommitDetailQueryProps = {
   params: NoteId
   children: FC<{ data: CommitSchema; userId: string }>
 }
+
+export type CommitThreadQueryProps = {
+  params: NoteId
+  children: FC<{ thread: CommitSchema[]; rootNoteId: string; userId: string }>
+}

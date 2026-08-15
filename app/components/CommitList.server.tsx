@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { DateFormatter, getTimezoneDate } from '../../lib/date'
+import { DateFormatter, getMonthRange, getTimezoneDate } from '../../lib/date'
 import { CommitSchema } from '@/db/schema'
 import { Params } from '../types'
 import { Effect } from 'effect'
@@ -33,7 +33,7 @@ export async function CommitListServer({
         const userId = yield* nextAuthService.getUserId()
         const results = yield* commitService.getList({
           user_id: userId,
-          date: params.date ?? fallbackDate,
+          ...getMonthRange(params.date ?? fallbackDate, timezone),
         })
 
         return results
