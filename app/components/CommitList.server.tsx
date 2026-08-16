@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { ReactNode } from 'react'
 import { DateFormatter, getMonthRange, getTimezoneDate } from '../../lib/date'
 import { CommitSchema } from '@/db/schema'
 import { Params } from '../types'
@@ -11,7 +11,7 @@ export type CommitListServerProps = {
   params: {
     date: Params['date']
   }
-  children: FC<CommitSchema[]>
+  children: (list: CommitSchema[]) => ReactNode
 }
 
 export async function CommitListServer({

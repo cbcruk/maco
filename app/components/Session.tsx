@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { ReactNode } from 'react'
 import { Session as NextAuthSession } from 'next-auth'
 import { Effect } from 'effect'
 import { NextAuthService } from '@/services/NextAuth'
@@ -7,7 +7,7 @@ import { SessionFallback } from './SessionFallback'
 export type SessionReturn = NextAuthSession | null
 
 export type SessionProps = {
-  children: FC<SessionReturn>
+  children: (session: SessionReturn) => ReactNode
 }
 
 export function Session({ children }: SessionProps) {
