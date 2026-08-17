@@ -7,7 +7,7 @@ import {
   CommitSchema,
   UserSelectSchema,
 } from '@/db/schema'
-import { and, asc, eq, inArray, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 import { chunk } from 'es-toolkit'
 import { commitHash } from '@/lib/hash'
 
@@ -95,6 +95,31 @@ export class CommitService extends Effect.Service<CommitService>()(
                         AND latest.user_id = roots.user_id
                     )
                 )`
+              )
+            )
+        },
+        /**
+         * 한 메모의 리비전 전체 = 수정 이력.
+         *
+         * 여기서만 `isLatestRevision`을 걸지 않는다. 지난 리비전을 보는 것이
+         * 목적이고, 톰스톤도 "언제 지웠는지"라는 이력의 일부다.
+         */
+        getHistory(params: CommitServiceGetItemParams) {
+          return db
+            .select()
+            .from(commits)
+            .orderBy(desc(commits.hlc))
+            .where(
+              and(
+                eq(commits.user_id, params.user_id),
+                eq(commits.note_id, params.note_id)
+              )
+            )
+            .pipe(
+              Effect.flatMap((results) =>
+                results.length > 0
+                  ? Effect.succeed(results)
+                  : Effect.fail(new NotFoundError({ message: '404' }))
               )
             )
         },

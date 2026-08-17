@@ -69,6 +69,13 @@ export function CommitThread({ list, rootNoteId, userId }: CommitThreadProps) {
                   >
                     수정
                   </Link>
+                  <Link
+                    prefetch
+                    href={`/commit/${item.note_id}/history`}
+                    className="hover:text-gray-200"
+                  >
+                    이력
+                  </Link>
                 </div>
               )
             }

@@ -21,6 +21,7 @@ export class DateFormatter {
     'yyyy-MM-dd': 'yyyy-MM-dd',
     'yyyy년 M월': 'yyyy년 M월',
     'aaa h시 m분': 'aaa h시 m분',
+    'M월 d일 aaa h시 m분': 'M월 d일 aaa h시 m분',
     'd일 / EEEE': 'd일 / EEEE',
   }
 
