@@ -3,6 +3,8 @@ import { User } from 'next-auth'
 import Image from 'next/image'
 import { ComponentProps, useActionState } from 'react'
 import { updateUser } from './FormUser.actions'
+import { getInitialActionState } from '@/helpers/getInitialActionState'
+import { ErrorMessage } from '@/app/components/ErrorMessage'
 
 type SessionUserDataProps = {
   data: User
@@ -19,15 +21,16 @@ function FormUserInput(props: ComponentProps<'input'>) {
 }
 
 export function FormUser({ data }: SessionUserDataProps) {
-  const [, formAction, isPending] = useActionState(updateUser, undefined)
+  const [state, formAction, isPending] = useActionState(
+    updateUser,
+    getInitialActionState()
+  )
 
   return Option.fromNullable(data).pipe(
     Option.match({
       onNone: () => null,
       onSome: (data) => (
         <form action={formAction} className="flex flex-col gap-4 self-start">
-          <input type="hidden" name="id" defaultValue={data.id} />
-
           {data.image && (
             <Image
               src={data.image}
@@ -58,6 +61,8 @@ export function FormUser({ data }: SessionUserDataProps) {
               />
             </FormUserField>
           </div>
+
+          <ErrorMessage errors={state.errors} />
 
           <button
             type="submit"
