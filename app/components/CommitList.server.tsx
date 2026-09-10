@@ -5,6 +5,7 @@ import { Params } from '../types'
 import { Effect } from 'effect'
 import { CommitService } from '@/services/Commit'
 import { NextAuthService } from '@/services/NextAuth'
+import { renderEffect } from '@/runtime/render'
 import { getServerTimezone } from '@/lib/timezone'
 
 export type CommitListServerProps = {
@@ -24,28 +25,18 @@ export async function CommitListServer({
     formatStr: 'yyyy-MM',
   })
 
-  return (
-    <>
-      {Effect.gen(function* () {
-        const commitService = yield* CommitService
-        const nextAuthService = yield* NextAuthService
+  return renderEffect(
+    Effect.gen(function* () {
+      const commitService = yield* CommitService
+      const nextAuthService = yield* NextAuthService
 
-        const userId = yield* nextAuthService.getUserId()
-        const results = yield* commitService.getList({
-          user_id: userId,
-          ...getMonthRange(params.date ?? fallbackDate, timezone),
-        })
+      const userId = yield* nextAuthService.getUserId()
 
-        return results
-      }).pipe(
-        Effect.provide(NextAuthService.Default),
-        Effect.provide(CommitService.Default),
-        Effect.match({
-          onSuccess: (data) => <>{children(data)}</>,
-          onFailure: (e) => <pre>{e._tag}</pre>,
-        }),
-        Effect.runPromise
-      )}
-    </>
+      return yield* commitService.getList({
+        user_id: userId,
+        ...getMonthRange(params.date ?? fallbackDate, timezone),
+      })
+    }),
+    (data) => <>{children(data)}</>
   )
 }

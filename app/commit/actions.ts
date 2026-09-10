@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { Effect } from 'effect'
+import { runEffect } from '@/runtime/run'
 import { CommitService, PushRejection } from '@/services/Commit'
 import { CommitSchemaService } from '@/services/CommitSchemaService'
 import { NextAuthService } from '@/services/NextAuth'
@@ -18,7 +19,7 @@ export type PushResult =
  * 신뢰하면 타인 명의로 메모를 만들 수 있다.
  */
 export async function pushCommitsAction(payload: unknown): Promise<PushResult> {
-  return Effect.runPromise(
+  return runEffect(
     Effect.gen(function* () {
       const commitService = yield* CommitService
       const commitSchemaService = yield* CommitSchemaService
@@ -29,9 +30,7 @@ export async function pushCommitsAction(payload: unknown): Promise<PushResult> {
 
       return yield* commitService.push({ user_id, records })
     }).pipe(
-      Effect.provide(NextAuthService.Default),
-      Effect.provide(CommitService.Default),
-      Effect.provide(CommitSchemaService.Default),
+      Effect.tapErrorCause(Effect.logError),
       Effect.match({
         onSuccess({ accepted, rejected }): PushResult {
           if (accepted.length > 0) {
