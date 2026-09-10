@@ -3,6 +3,7 @@ import GitHub from 'next-auth/providers/github'
 import { userInsertSchema } from '@/db/schema'
 import { Effect } from 'effect'
 import { UserService } from '@/services/User'
+import { runEffect } from '@/runtime/run'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GitHub],
@@ -32,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           )
 
         return true
-      }).pipe(Effect.provide(UserService.Default), Effect.runPromise)
+      }).pipe(runEffect)
     },
     async session({ session }) {
       return await Effect.gen(function* () {
@@ -49,7 +50,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )
 
         return session
-      }).pipe(Effect.provide(UserService.Default), Effect.runPromise)
+      }).pipe(runEffect)
     },
   },
 })
